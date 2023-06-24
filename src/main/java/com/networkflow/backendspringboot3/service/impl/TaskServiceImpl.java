@@ -94,7 +94,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         BeanUtils.copyProperties(createTaskRequest, task);
         if (uploadFile != null) {
             String fileName = uploadFile.getOriginalFilename();
-            String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core" + System.getProperty("file.separator") + "upload";
+            String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go" + System.getProperty("file.separator") + "upload";
             File file = new File(filePath);
             if (!file.exists()) {
                 if (!file.mkdir()) {
@@ -178,14 +178,13 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         queryWrapper.lambda().eq(Task::getStatus, 1);
         List<Task> list = taskMapper.selectList(queryWrapper);
 
+        log.info("list = " + list);
         for (Task task : list) {
             String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             task.setStatus(2);
             task.setStartTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             taskMapper.updateById(task);
             if (taskMapper.updateById(task) > 0) {
-//                detectTask.executePythonScript(System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
-//                        System.getProperty("file.separator") + "springboot.py", task);
                 detectTask.executeGoScript(System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
                         System.getProperty("file.separator") + "springboot.py", task);
             } else {
