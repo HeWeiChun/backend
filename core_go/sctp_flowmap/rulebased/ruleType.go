@@ -6,7 +6,7 @@ import (
 )
 
 type TypeList struct {
-	FlowID    uint64
+	FlowID    string
 	Flow      *flowMap.FlowInfo
 	NGAP_List *list.List
 	count     int
@@ -14,7 +14,7 @@ type TypeList struct {
 
 type TreeNode struct {
 	NGAP_Procedure string
-	FlowID         int64
+	FlowID         string
 	fatherNode     *TreeNode
 	childrenNodes  *list.List
 }

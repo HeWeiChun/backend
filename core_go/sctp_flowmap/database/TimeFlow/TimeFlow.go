@@ -6,7 +6,7 @@ import (
 )
 
 type TimeFlow struct {
-	FlowId          uint64 //流哈希id
+	FlowId          string //流哈希id
 	RanUeNgapId     uint64 //包哈希id
 	TotalNum        uint32
 	BeginTime       time.Time
@@ -38,7 +38,7 @@ var queryTimeFlowLogSQL = `
 
 var creatTimeFlowTableSQL = `
 	CREATE TABLE IF NOT EXISTS ` + TimeFlowTable + ` (
-		FlowId UInt64,
+		FlowId String,
 		RanUeNgapId UInt64,
         TotalNum UInt32,
 		BeginTime DateTime64(6), 
@@ -69,7 +69,7 @@ func (fl *TimeFlow) initFlowLog() {
 
 func (fl TimeFlow) String() string {
 	return fmt.Sprintf(`
-            FlowId: %u,
+            FlowId: %s,
 		    RanUeNgapId: %u,
             TotalNum: %u ,
 	    	BeginTime: %s , 

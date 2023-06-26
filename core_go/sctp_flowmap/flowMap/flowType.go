@@ -2,6 +2,7 @@ package flowMap
 
 import (
 	"container/list"
+	"strconv"
 	"time"
 )
 
@@ -23,7 +24,7 @@ type Flow struct {
 
 type FlowInfo struct {
 	RAN_UE_NGAP_ID int64
-	FlowID         uint64
+	FlowID         string
 	FlowType       PacketType
 	TotalNum       uint
 	PacketList     list.List
@@ -34,11 +35,11 @@ type FlowInfo struct {
 	VerificationTag uint32
 	SrcIP           string
 	DstIP           string
-	TimeID          int64
+	TimeID          string
 	TaskID          string
 }
 type Packet struct {
-	FlowID            uint64
+	FlowID            string
 	NgapType          string
 	NgapProcedureCode string
 	NgapRoute         string
@@ -52,12 +53,13 @@ type Packet struct {
 	VerificationTag   uint32
 	SrcIP             string
 	DstIP             string
-	TimeID            int64
+	TimeID            string
 	DirSeq            int
 }
 
-func loadFlow(flowId uint64, flowTable []*Flow) (*FlowInfo, bool) {
-	cur := flowTable[flowId%TABLE_SIZE]
+func loadFlow(flowId string, flowTable []*Flow) (*FlowInfo, bool) {
+	numFlowId, _ := strconv.ParseUint(flowId, 10, 64)
+	cur := flowTable[numFlowId%TABLE_SIZE]
 	if cur == nil {
 		return nil, false
 	}
@@ -72,10 +74,11 @@ func loadFlow(flowId uint64, flowTable []*Flow) (*FlowInfo, bool) {
 	return nil, false
 }
 
-func storeFlow(flowId uint64, flowInfo *FlowInfo, flowTable []*Flow) {
-	cur := flowTable[flowId%TABLE_SIZE]
+func storeFlow(flowId string, flowInfo *FlowInfo, flowTable []*Flow) {
+	numFlowId, _ := strconv.ParseUint(flowId, 10, 64)
+	cur := flowTable[numFlowId%TABLE_SIZE]
 	if cur == nil {
-		flowTable[flowId%TABLE_SIZE] = &Flow{info: flowInfo, next: nil}
+		flowTable[numFlowId%TABLE_SIZE] = &Flow{info: flowInfo, next: nil}
 	} else {
 		next := cur
 		for next.next != cur {
@@ -85,10 +88,11 @@ func storeFlow(flowId uint64, flowInfo *FlowInfo, flowTable []*Flow) {
 	}
 }
 
-func deleteFlow(flowId uint64, flowTable []*Flow) bool {
-	pre := flowTable[flowId%TABLE_SIZE]
+func deleteFlow(flowId string, flowTable []*Flow) bool {
+	numFlowId, _ := strconv.ParseUint(flowId, 10, 64)
+	pre := flowTable[numFlowId%TABLE_SIZE]
 	if pre.info.FlowID == flowId {
-		flowTable[flowId%TABLE_SIZE] = pre.next
+		flowTable[numFlowId%TABLE_SIZE] = pre.next
 		return true
 	}
 	cur := pre.next

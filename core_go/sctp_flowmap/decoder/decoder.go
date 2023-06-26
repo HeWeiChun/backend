@@ -9,8 +9,7 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-
-	"time"
+	"strconv"
 )
 
 var taskID string
@@ -44,12 +43,12 @@ func Decode(file string, task string) {
 
 			Packet_UE := &flowMap.Packet{
 				NgapPayloadBytes: payload,
-				ArriveTimeUs:     time.Now().UnixNano(),
-				ArriveTime:       time.Now(),
+				ArriveTimeUs:     packet.Metadata().Timestamp.UnixNano(),
+				ArriveTime:       packet.Metadata().Timestamp,
 				RAN_UE_NGAP_ID:   -1,
 				PayloadBytes:     packet.Data(),
 				PacketLen:        uint(len(packet.Data())),
-				TimeID:           int64(0),
+				TimeID:           "0",
 			}
 
 			var DecResult *ngapType.NGAPPDU
@@ -95,16 +94,17 @@ func Decode(file string, task string) {
 				}
 
 				flowUEID, ID := flowMap.Count_UE_ID(Packet_UE)
-				Packet_UE.FlowID = flowUEID
+				strFlowUEID := strconv.FormatUint(flowUEID, 10)
+				Packet_UE.FlowID = strFlowUEID
 				if ID {
-
-					flowMap.Put(Packet_UE, flowMap.FlowTable_UE, flowUEID, task)
+					flowMap.Put(Packet_UE, flowMap.FlowTable_UE, strFlowUEID, task)
 				}
 
 				flowTimeID, _ := flowMap.Count_Time_ID(Packet_Time, TimeFirst)
-				Packet_Time.TimeID = int64(flowUEID)
-				Packet_Time.FlowID = flowTimeID
-				flowMap.Put(Packet_Time, flowMap.FlowTable_Time, flowTimeID, task)
+				strFlowTimeID := strconv.FormatUint(flowTimeID, 10)
+				Packet_Time.TimeID = strFlowUEID
+				Packet_Time.FlowID = strFlowTimeID
+				flowMap.Put(Packet_Time, flowMap.FlowTable_Time, strFlowTimeID, task)
 
 			}
 

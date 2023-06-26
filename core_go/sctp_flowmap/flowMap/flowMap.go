@@ -40,12 +40,13 @@ func Count_Time_ID(packet *Packet, TimeFirst int64) (uint64, int64) {
 	return FastTwoHash([]byte(string(Time)), []byte(string(packet.VerificationTag))), Time
 }
 
-func Put(packet *Packet, flowTable []*Flow, flowID uint64, taskid string) bool {
+func Put(packet *Packet, flowTable []*Flow, flowID string, taskid string) bool {
 	var flowInfo *FlowInfo
 	var first = false // 是否流的首包
 	flowInfo, isExist := loadFlow(flowID, flowTable)
 	if isExist {
 		packet.TimeInterval = packet.ArriveTimeUs - flowInfo.EndTimeUs + min_intervl
+		flowInfo.EndTime = packet.ArriveTime
 		flowInfo.EndTimeUs = packet.ArriveTimeUs
 		flowInfo.PacketList.PushBack(packet)
 		flowInfo.TotalNum = flowInfo.TotalNum + 1
@@ -137,7 +138,7 @@ func UEflowStore(rubbishList *list.List) {
 	for info := rubbishList.Front(); info != nil; info = info.Next() {
 		flowInfo := info.Value.(*FlowInfo)
 		fl := &UEFlow.UeFlow{
-			FlowId:          uint64(flowInfo.FlowID),
+			FlowId:          string(flowInfo.FlowID),
 			RanUeNgapId:     uint64(flowInfo.RAN_UE_NGAP_ID),
 			TotalNum:        uint32(flowInfo.TotalNum),
 			BeginTime:       flowInfo.BeginTime,
@@ -181,7 +182,7 @@ func TimeflowStore(rubbishList *list.List) {
 	for info := rubbishList.Front(); info != nil; info = info.Next() {
 		flowInfo := info.Value.(*FlowInfo)
 		fl := &TimeFlow.TimeFlow{
-			FlowId:          uint64(flowInfo.FlowID),
+			FlowId:          string(flowInfo.FlowID),
 			RanUeNgapId:     uint64(flowInfo.RAN_UE_NGAP_ID),
 			TotalNum:        uint32(flowInfo.TotalNum),
 			BeginTime:       flowInfo.BeginTime,
@@ -209,8 +210,8 @@ func TimeflowStore(rubbishList *list.List) {
 				SrcIP:             parse.SrcIP,
 				DstIP:             parse.DstIP,
 				DirSeq:            uint16(parse.DirSeq),
-				FlowUEID:          uint64(parse.TimeID),
-				FlowTimeID:        uint64(parse.FlowID),
+				FlowUEID:          string(parse.TimeID),
+				FlowTimeID:        string(parse.FlowID),
 				StatusPacket:      0,
 			}
 			PacketList.PushBack(packet)

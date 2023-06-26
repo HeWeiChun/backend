@@ -18,8 +18,8 @@ type Packet struct {
 	SrcIP             string
 	DstIP             string
 	DirSeq            uint16
-	FlowUEID          uint64
-	FlowTimeID        uint64
+	FlowUEID          string
+	FlowTimeID        string
 	StatusPacket      uint16
 }
 
@@ -53,8 +53,8 @@ var creatPacketTableSQL = `
 	    SrcIP String ,
 	    DstIP String ,
 	    DirSeq UInt16 ,
-	    FlowUEID UInt64 ,
-     	FlowTimeID UInt64 ,
+	    FlowUEID String ,
+     	FlowTimeID String ,
 	    StatusPacket UInt16 ,
 
 		INDEX i_RanUeNgapId (RanUeNgapId) TYPE minmax GRANULARITY 4, 
@@ -91,8 +91,8 @@ func (fl Packet) String() string {
 		    SrcIP: %s, 
 		    DstIP: %s,
             DirSeq: %u,
-            FlowUEID: %u,
-            FlowTimeID: %u,
+            FlowUEID: %s,
+            FlowTimeID: %s,
 		    StatusFlow: %u
 		`, fl.NgapType, fl.NgapProcedureCode, fl.RanUeNgapId, fl.PacketLen,
 		fl.ArriveTimeUs, fl.ArriveTime, fl.TimeInterval, fl.VerificationTag, fl.SrcIP, fl.DstIP,

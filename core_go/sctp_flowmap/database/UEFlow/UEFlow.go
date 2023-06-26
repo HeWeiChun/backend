@@ -6,7 +6,7 @@ import (
 )
 
 type UeFlow struct {
-	FlowId          uint64 //流哈希id
+	FlowId          string //流哈希id
 	RanUeNgapId     uint64 //包哈希id
 	TotalNum        uint32
 	BeginTime       time.Time
@@ -37,7 +37,7 @@ var queryUEFlowLogSQL = `
 
 var creatUEFlowTableSQL = `
 	CREATE TABLE IF NOT EXISTS ` + UeFlowTable + ` (
-		FlowId UInt64,
+		FlowId String,
 		RanUeNgapId UInt64,
         TotalNum UInt32,
         StartSecond UInt64,
@@ -71,7 +71,7 @@ func (fl *UeFlow) initFlowLog() {
 
 func (fl UeFlow) String() string {
 	return fmt.Sprintf(`
-            FlowId: %u,
+            FlowId: %s,
 		    RanUeNgapId: %u,
             TotalNum: %u ,
 	    	BeginTime: %s , 
