@@ -24,6 +24,8 @@ public class Task {
     private Integer port;
     // PCAP包存储位置
     private String pcapPath;
+    // PCAP包存储位置(任务id命名)
+    private String truePcapPath;
     // 正常数据包数
     private Integer normal;
     // 异常数据包数

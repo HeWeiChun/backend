@@ -53,8 +53,41 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public R allTask() {
         QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().orderByAsc(Task::getCreateTime);
+        queryWrapper.lambda().orderByDesc(Task::getCreateTime);
         return R.success(null, taskMapper.selectList(queryWrapper));
+    }
+    // 上传文件(返回任务id命名的名字)
+    private String uploadFile(MultipartFile uploadFile, String taskId) {
+        if (uploadFile == null) {
+            return null;
+        }
+        String fileName = uploadFile.getOriginalFilename();
+        // 求文件后缀
+        String extension = "";
+        if (fileName != null) {
+            int dotIndex = fileName.lastIndexOf('.');
+            if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
+                extension = fileName.substring(dotIndex + 1);
+            }
+        }
+        String trueFileName = taskId + "." + extension;
+
+        // 检查文件存储位置是否存在
+        String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go" + System.getProperty("file.separator") + "upload";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            if (!file.mkdir()) {
+                return null;
+            }
+        }
+        // 文件路径
+        File dest = new File(filePath + System.getProperty("file.separator") + trueFileName);
+        try {
+            uploadFile.transferTo(dest);
+            return trueFileName;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override
@@ -62,25 +95,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Task task = new Task();
 
         BeanUtils.copyProperties(createTaskRequest, task);
-        if (uploadFile != null) {
-            String fileName = uploadFile.getOriginalFilename();
-            String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core" + System.getProperty("file.separator") + "upload";
-            File file = new File(filePath);
-            if (!file.exists()) {
-                if (!file.mkdir()) {
-                    return R.fatal("创建文件失败");
-                }
-            }
-            File dest = new File(filePath + System.getProperty("file.separator") + fileName);
-            String storeUrlPath = fileName;
-            try {
-                uploadFile.transferTo(dest);
-            } catch (IOException e) {
-                return R.fatal("上传失败" + e.getMessage());
-            }
-            task.setPcapPath(storeUrlPath);
-        } else
-            task.setPcapPath(null);
+
+        String trueFileName = uploadFile(uploadFile, createTaskRequest.getTaskId());
+        if (trueFileName != null) {
+            task.setPcapPath(uploadFile.getOriginalFilename());
+            task.setTruePcapPath(trueFileName);
+        } else {
+            return R.fatal("上传文件失败");
+        }
+
         if (taskMapper.insert(task) > 0) {
             return R.success("添加成功");
         } else {
@@ -92,25 +115,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public R updateTask(TaskRequest createTaskRequest, MultipartFile uploadFile) {
         Task task = new Task();
         BeanUtils.copyProperties(createTaskRequest, task);
-        if (uploadFile != null) {
-            String fileName = uploadFile.getOriginalFilename();
-            String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go" + System.getProperty("file.separator") + "upload";
-            File file = new File(filePath);
-            if (!file.exists()) {
-                if (!file.mkdir()) {
-                    return R.fatal("创建文件失败");
-                }
-            }
-            File dest = new File(filePath + System.getProperty("file.separator") + fileName);
-            String storeUrlPath = fileName;
-            try {
-                uploadFile.transferTo(dest);
-            } catch (IOException e) {
-                return R.fatal("上传失败" + e.getMessage());
-            }
-            task.setPcapPath(storeUrlPath);
-        } else
-            task.setPcapPath(null);
+
+        String trueFileName = uploadFile(uploadFile, createTaskRequest.getTaskId());
+        if (trueFileName != null) {
+            task.setPcapPath(uploadFile.getOriginalFilename());
+            task.setTruePcapPath(trueFileName);
+        } else {
+            return R.fatal("上传文件失败");
+        }
+
         if (taskMapper.updateById(task) > 0) {
             return R.success("更新成功");
         } else {
@@ -185,8 +198,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             task.setStartTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             taskMapper.updateById(task);
             if (taskMapper.updateById(task) > 0) {
-                detectTask.executeGoScript(System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
-                        System.getProperty("file.separator") + "springboot.py", task);
+                detectTask.executeGoScript(task);
             } else {
                 log.info("启动成功");
             }
@@ -206,8 +218,7 @@ class DetectTask {
     public void executePythonScript(String scriptPath, Task currentTask) {
         log.info("执行Python的线程名字为 = " + Thread.currentThread().getName());
         try {
-            String condaEnv = "base";
-            ProcessBuilder processBuilder = new ProcessBuilder("D:\\ProgramData\\anaconda3\\python.exe", scriptPath, "--file_path", currentTask.getPcapPath(), "--taskid", currentTask.getTaskId());
+            ProcessBuilder processBuilder = new ProcessBuilder("D:\\ProgramData\\anaconda3\\python.exe", scriptPath, "--file_path", currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId());
             Process process = processBuilder.start();
 
             // 处理脚本的输出
@@ -231,7 +242,7 @@ class DetectTask {
             if (taskMapper.updateById(task) > 0) {
                 if (exitCode == 0)
                     log.info("检测完成");
-                else{
+                else {
                     log.info("检测失败");
                 }
             } else {
@@ -239,17 +250,26 @@ class DetectTask {
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            Task task = new Task();
+            task.setTaskId(currentTask.getTaskId());
+            task.setStatus(100);
+            if (taskMapper.updateById(task) > 0) {
+                log.info("检测失败");
+            } else {
+                log.info("检测失败");
+            }
         } finally {
             if (checkTaskPool instanceof ThreadPoolExecutor) {
                 ((ThreadPoolExecutor) checkTaskPool).remove(Thread.currentThread());
             }
         }
     }
+
     @Async("checkTaskPool")
-    public void executeGoScript(String scriptPath, Task currentTask) {
+    public void executeGoScript(Task currentTask) {
         log.info("执行Go的线程名字为 = " + Thread.currentThread().getName());
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\sdk\\go1.20.4\\bin\\go.exe", "run", "main.go", "--pcap_path", "..\\upload\\"+currentTask.getPcapPath(), "--taskid", currentTask.getTaskId());
+            ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\sdk\\go1.20.4\\bin\\go.exe", "run", "main.go", "--pcap_path", "..\\upload\\" + currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId());
             processBuilder.directory(new File("E:\\Code\\web\\backendspringboot3\\core_go\\sctp_flowmap"));
             Process process = processBuilder.start();
 
@@ -273,7 +293,7 @@ class DetectTask {
             if (taskMapper.updateById(task) > 0) {
                 if (exitCode == 0)
                     log.info("解析完成");
-                else{
+                else {
                     log.info("解析失败");
                     return;
                 }
@@ -283,7 +303,7 @@ class DetectTask {
             }
 
             executePythonScript(System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go\\python" +
-                        System.getProperty("file.separator") + "springboot.py", currentTask);
+                    System.getProperty("file.separator") + "springboot.py", currentTask);
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

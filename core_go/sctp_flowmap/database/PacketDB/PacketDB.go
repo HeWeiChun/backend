@@ -8,7 +8,6 @@ import (
 	"log"
 )
 
-
 func init() {
 	creatPacketTable()
 }
@@ -21,7 +20,7 @@ func InsertPacket(PacketList *list.List) {
 	checkErr(err)
 	stmt, err := tx.Prepare(sqlStr)
 	checkErr(err)
-	for info := PacketList.Front(); info != nil; info = info.Next(){
+	for info := PacketList.Front(); info != nil; info = info.Next() {
 		packet_sql := info.Value.(*Packet)
 		if _, err := stmt.Exec(
 			//packet_sql.PacketId,
@@ -46,6 +45,7 @@ func InsertPacket(PacketList *list.List) {
 	}
 	checkErr(tx.Commit())
 }
+
 /*
 func QueryFlows() {
 	var sqlStr string = queryPacketSQL
@@ -82,6 +82,3 @@ func checkErr(err error) {
 		log.Fatal(err)
 	}
 }
-
-
-

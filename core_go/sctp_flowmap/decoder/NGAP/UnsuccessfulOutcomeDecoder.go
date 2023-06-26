@@ -5,9 +5,7 @@ import (
 	"github.com/free5gc/ngap/ngapType"
 )
 
-
-
-func InitialContextSetupFailure(InitialContextSetupFailure ngapType.UnsuccessfulOutcomeValue,packet *flowMap.Packet) {
+func InitialContextSetupFailure(InitialContextSetupFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
 	initialContextSetupFailure := InitialContextSetupFailure.InitialContextSetupFailure
 	if initialContextSetupFailure != nil {
 		for i := 0; i < len(initialContextSetupFailure.ProtocolIEs.List); i++ {
@@ -19,14 +17,13 @@ func InitialContextSetupFailure(InitialContextSetupFailure ngapType.Unsuccessful
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func UEContextModificationFailure(UEContextModificationFailure ngapType.UnsuccessfulOutcomeValue,packet *flowMap.Packet) {
+func UEContextModificationFailure(UEContextModificationFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
 	uEContextModificationFailure := UEContextModificationFailure.UEContextModificationFailure
 	if uEContextModificationFailure != nil {
 		for i := 0; i < len(uEContextModificationFailure.ProtocolIEs.List); i++ {
@@ -38,14 +35,13 @@ func UEContextModificationFailure(UEContextModificationFailure ngapType.Unsucces
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func HandoverPreparationFailure(HandoverPreparationFailure ngapType.UnsuccessfulOutcomeValue,packet *flowMap.Packet) {
+func HandoverPreparationFailure(HandoverPreparationFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
 	handoverPreparationFailure := HandoverPreparationFailure.HandoverPreparationFailure
 	if handoverPreparationFailure != nil {
 		for i := 0; i < len(handoverPreparationFailure.ProtocolIEs.List); i++ {
@@ -57,14 +53,13 @@ func HandoverPreparationFailure(HandoverPreparationFailure ngapType.Unsuccessful
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func PathSwitchRequestFailure(PathSwitchRequestFailure ngapType.UnsuccessfulOutcomeValue,packet *flowMap.Packet) {
+func PathSwitchRequestFailure(PathSwitchRequestFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
 	pathSwitchRequestFailure := PathSwitchRequestFailure.PathSwitchRequestFailure
 	if pathSwitchRequestFailure != nil {
 		for i := 0; i < len(pathSwitchRequestFailure.ProtocolIEs.List); i++ {
@@ -76,13 +71,8 @@ func PathSwitchRequestFailure(PathSwitchRequestFailure ngapType.UnsuccessfulOutc
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
-
-
-
-
-

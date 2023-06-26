@@ -11,12 +11,11 @@ type SupportedTAI struct {
 	SNssaiList []models.Snssai
 }
 
-
-func NGSetupRequestDecoder(NGSetup ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func NGSetupRequestDecoder(NGSetup ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 
 }
 
-func InitialContextSetupDecoder(InitialContextSetup ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func InitialContextSetupDecoder(InitialContextSetup ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	initiatialContextSetup := InitialContextSetup.InitialContextSetupRequest
 	//notice the Setup here, there's no need to distinguish the Req and Res, because Res is in the SuccessfulOutcome.
 	if initiatialContextSetup != nil {
@@ -29,15 +28,13 @@ func InitialContextSetupDecoder(InitialContextSetup ngapType.InitiatingMessageVa
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-
-func InitialUEMessageDecoder(InitialUEMessage ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func InitialUEMessageDecoder(InitialUEMessage ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============InitialUEMessageDecoder begins working.===============")
 	initialUEMessage := InitialUEMessage.InitialUEMessage
 	if initialUEMessage != nil {
@@ -47,13 +44,13 @@ func InitialUEMessageDecoder(InitialUEMessage ngapType.InitiatingMessageValue,pa
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				id_RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[id-RAN-UE-NGAP-ID]:", id_RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=id_RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = id_RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func DownlinkNASTransportDecoder(DownlinkNASTransport ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func DownlinkNASTransportDecoder(DownlinkNASTransport ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============DownlinkNASTransportDecoder begins working.===============")
 	downlinkNASTransport := DownlinkNASTransport.DownlinkNASTransport
 	if downlinkNASTransport != nil {
@@ -66,18 +63,14 @@ func DownlinkNASTransportDecoder(DownlinkNASTransport ngapType.InitiatingMessage
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				id_RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[id-RAN-UE-NGAP-ID]:", id_RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=id_RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = id_RAN_UE_NGAP_ID
 			}
 
 		}
 	}
 }
 
-
-
-
-
-func PDUSessionResourceModifyDecoder(PDUSessionResourceModify ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func PDUSessionResourceModifyDecoder(PDUSessionResourceModify ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	pDUSessionResourceModify := PDUSessionResourceModify.PDUSessionResourceModifyRequest
 	if pDUSessionResourceModify != nil {
 		for i := 0; i < len(pDUSessionResourceModify.ProtocolIEs.List); i++ {
@@ -89,15 +82,13 @@ func PDUSessionResourceModifyDecoder(PDUSessionResourceModify ngapType.Initiatin
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-
-func PDUSessionResourcedReleaseDecoder(PDUSessionResourcedRelease ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func PDUSessionResourcedReleaseDecoder(PDUSessionResourcedRelease ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	pduSessionResourcedRelease := PDUSessionResourcedRelease.PDUSessionResourceReleaseCommand
 	if pduSessionResourcedRelease != nil {
 		for i := 0; i < len(pduSessionResourcedRelease.ProtocolIEs.List); i++ {
@@ -109,13 +100,13 @@ func PDUSessionResourcedReleaseDecoder(PDUSessionResourcedRelease ngapType.Initi
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func PDUSessionResourceSetupDecoder(PDUSessionResourceSetup ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func PDUSessionResourceSetupDecoder(PDUSessionResourceSetup ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	pDUSeesionReusourceSetup := PDUSessionResourceSetup.PDUSessionResourceSetupRequest
 	if pDUSeesionReusourceSetup != nil {
 		for i := 0; i < len(pDUSeesionReusourceSetup.ProtocolIEs.List); i++ {
@@ -127,14 +118,14 @@ func PDUSessionResourceSetupDecoder(PDUSessionResourceSetup ngapType.InitiatingM
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 
 			}
 		}
 	}
 }
 
-func RANConfigurationUpdateDecoder(RANConfigurationUpdate ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func RANConfigurationUpdateDecoder(RANConfigurationUpdate ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============RANConfigurationUpdateDecoder begins working.===============")
 	rANConfigurationUpdate := RANConfigurationUpdate.RANConfigurationUpdate
 	if rANConfigurationUpdate != nil {
@@ -150,10 +141,7 @@ func RANConfigurationUpdateDecoder(RANConfigurationUpdate ngapType.InitiatingMes
 	}
 }
 
-
-
-
-func UplinkNASTransportDecoder(UplinkNASTransport ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UplinkNASTransportDecoder(UplinkNASTransport ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uplinkNASTransport := UplinkNASTransport.UplinkNASTransport
 	if uplinkNASTransport != nil {
@@ -166,14 +154,13 @@ func UplinkNASTransportDecoder(UplinkNASTransport ngapType.InitiatingMessageValu
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func PDUSessionResourceNotifyDecoder(PDUSessionResourceNotify ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func PDUSessionResourceNotifyDecoder(PDUSessionResourceNotify ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	pDUSessionResourceNotify := PDUSessionResourceNotify.PDUSessionResourceNotify
 	if pDUSessionResourceNotify != nil {
@@ -186,14 +173,13 @@ func PDUSessionResourceNotifyDecoder(PDUSessionResourceNotify ngapType.Initiatin
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func PDUSessionResourceModifyIndication(PDUSessionResourceModifyIndication ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func PDUSessionResourceModifyIndication(PDUSessionResourceModifyIndication ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	pDUSessionResourceModifyIndication := PDUSessionResourceModifyIndication.PDUSessionResourceModifyIndication
 	if pDUSessionResourceModifyIndication != nil {
@@ -206,14 +192,13 @@ func PDUSessionResourceModifyIndication(PDUSessionResourceModifyIndication ngapT
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func UEContextReleaseRequest(UEContextReleaseRequest ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UEContextReleaseRequest(UEContextReleaseRequest ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uEContextReleaseRequest := UEContextReleaseRequest.UEContextReleaseRequest
 	if uEContextReleaseRequest != nil {
@@ -226,14 +211,13 @@ func UEContextReleaseRequest(UEContextReleaseRequest ngapType.InitiatingMessageV
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func UEContextModificationRequest(UEContextModificationRequest ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UEContextModificationRequest(UEContextModificationRequest ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uEContextModificationRequest := UEContextModificationRequest.UEContextModificationRequest
 	if uEContextModificationRequest != nil {
@@ -246,13 +230,13 @@ func UEContextModificationRequest(UEContextModificationRequest ngapType.Initiati
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func RRCInactiveTransitionReport(RRCInactiveTransitionReport ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func RRCInactiveTransitionReport(RRCInactiveTransitionReport ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	rRCInactiveTransitionReport := RRCInactiveTransitionReport.RRCInactiveTransitionReport
 	if rRCInactiveTransitionReport != nil {
@@ -265,14 +249,13 @@ func RRCInactiveTransitionReport(RRCInactiveTransitionReport ngapType.Initiating
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func HandoverRequired(HandoverRequired ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func HandoverRequired(HandoverRequired ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	handoverRequired := HandoverRequired.HandoverRequired
 	if handoverRequired != nil {
@@ -285,14 +268,13 @@ func HandoverRequired(HandoverRequired ngapType.InitiatingMessageValue,packet *f
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func HandoverNotify(HandoverNotify ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func HandoverNotify(HandoverNotify ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	handoverNotify := HandoverNotify.HandoverNotify
 	if handoverNotify != nil {
@@ -305,14 +287,13 @@ func HandoverNotify(HandoverNotify ngapType.InitiatingMessageValue,packet *flowM
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func PathSwitchRequest(PathSwitchRequest ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func PathSwitchRequest(PathSwitchRequest ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	pathSwitchRequest := PathSwitchRequest.PathSwitchRequest
 	if pathSwitchRequest != nil {
@@ -325,14 +306,13 @@ func PathSwitchRequest(PathSwitchRequest ngapType.InitiatingMessageValue,packet 
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func HandoverCancel(HandoverCancel ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func HandoverCancel(HandoverCancel ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	handoverCancel := HandoverCancel.HandoverCancel
 	if handoverCancel != nil {
@@ -345,14 +325,13 @@ func HandoverCancel(HandoverCancel ngapType.InitiatingMessageValue,packet *flowM
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func UERadioCapabilityCheckRequest(UERadioCapabilityCheckRequest ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UERadioCapabilityCheckRequest(UERadioCapabilityCheckRequest ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uERadioCapabilityCheckRequest := UERadioCapabilityCheckRequest.UERadioCapabilityCheckRequest
 	if uERadioCapabilityCheckRequest != nil {
@@ -365,14 +344,13 @@ func UERadioCapabilityCheckRequest(UERadioCapabilityCheckRequest ngapType.Initia
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func UplinkRANStatusTransfer(UplinkRANStatusTransfer ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UplinkRANStatusTransfer(UplinkRANStatusTransfer ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uplinkRANStatusTransfer := UplinkRANStatusTransfer.UplinkRANStatusTransfer
 	if uplinkRANStatusTransfer != nil {
@@ -385,13 +363,13 @@ func UplinkRANStatusTransfer(UplinkRANStatusTransfer ngapType.InitiatingMessageV
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func DownlinkRANStatusTransfer(DownlinkRANStatusTransfer ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func DownlinkRANStatusTransfer(DownlinkRANStatusTransfer ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	downlinkRANStatusTransfer := DownlinkRANStatusTransfer.DownlinkRANStatusTransfer
 	if downlinkRANStatusTransfer != nil {
@@ -404,13 +382,13 @@ func DownlinkRANStatusTransfer(DownlinkRANStatusTransfer ngapType.InitiatingMess
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func NASNonDeliveryIndication(NASNonDeliveryIndication ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func NASNonDeliveryIndication(NASNonDeliveryIndication ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	nASNonDeliveryIndication := NASNonDeliveryIndication.NASNonDeliveryIndication
 	if nASNonDeliveryIndication != nil {
@@ -423,14 +401,13 @@ func NASNonDeliveryIndication(NASNonDeliveryIndication ngapType.InitiatingMessag
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func RerouteNASRequest(RerouteNASRequest ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func RerouteNASRequest(RerouteNASRequest ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	rerouteNASRequest := RerouteNASRequest.RerouteNASRequest
 	if rerouteNASRequest != nil {
@@ -443,13 +420,13 @@ func RerouteNASRequest(RerouteNASRequest ngapType.InitiatingMessageValue,packet 
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func ErrorIndication(ErrorIndication ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func ErrorIndication(ErrorIndication ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	errorIndication := ErrorIndication.ErrorIndication
 	if errorIndication != nil {
@@ -462,13 +439,13 @@ func ErrorIndication(ErrorIndication ngapType.InitiatingMessageValue,packet *flo
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func DownlinkUEAssociatedNRPPaTransport(DownlinkUEAssociatedNRPPaTransport ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func DownlinkUEAssociatedNRPPaTransport(DownlinkUEAssociatedNRPPaTransport ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	downlinkUEAssociatedNRPPaTransport := DownlinkUEAssociatedNRPPaTransport.DownlinkUEAssociatedNRPPaTransport
 	if downlinkUEAssociatedNRPPaTransport != nil {
@@ -481,13 +458,13 @@ func DownlinkUEAssociatedNRPPaTransport(DownlinkUEAssociatedNRPPaTransport ngapT
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func UplinkUEAssociatedNRPPaTransport(UplinkUEAssociatedNRPPaTransport ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UplinkUEAssociatedNRPPaTransport(UplinkUEAssociatedNRPPaTransport ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uplinkUEAssociatedNRPPaTransport := UplinkUEAssociatedNRPPaTransport.UplinkUEAssociatedNRPPaTransport
 	if uplinkUEAssociatedNRPPaTransport != nil {
@@ -500,14 +477,13 @@ func UplinkUEAssociatedNRPPaTransport(UplinkUEAssociatedNRPPaTransport ngapType.
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func TraceStart(TraceStart ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func TraceStart(TraceStart ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	traceStart := TraceStart.TraceStart
 	if traceStart != nil {
@@ -520,13 +496,13 @@ func TraceStart(TraceStart ngapType.InitiatingMessageValue,packet *flowMap.Packe
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func TraceFailureIndication(TraceFailureIndication ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func TraceFailureIndication(TraceFailureIndication ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	traceFailureIndication := TraceFailureIndication.TraceFailureIndication
 	if traceFailureIndication != nil {
@@ -539,13 +515,13 @@ func TraceFailureIndication(TraceFailureIndication ngapType.InitiatingMessageVal
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func DeactivateTrace(DeactivateTrace ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func DeactivateTrace(DeactivateTrace ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	deactivateTrace := DeactivateTrace.DeactivateTrace
 	if deactivateTrace != nil {
@@ -558,14 +534,13 @@ func DeactivateTrace(DeactivateTrace ngapType.InitiatingMessageValue,packet *flo
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func LocationReportingControl(LocationReportingControl ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func LocationReportingControl(LocationReportingControl ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	locationReportingControl := LocationReportingControl.LocationReportingControl
 	if locationReportingControl != nil {
@@ -578,13 +553,13 @@ func LocationReportingControl(LocationReportingControl ngapType.InitiatingMessag
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func LocationReportingFailureIndication(LocationReportingFailureIndication ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func LocationReportingFailureIndication(LocationReportingFailureIndication ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	locationReportingFailureIndication := LocationReportingFailureIndication.LocationReportingFailureIndication
 	if locationReportingFailureIndication != nil {
@@ -597,13 +572,13 @@ func LocationReportingFailureIndication(LocationReportingFailureIndication ngapT
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func LocationReport(LocationReport ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func LocationReport(LocationReport ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	locationReport := LocationReport.LocationReport
 	if locationReport != nil {
@@ -616,13 +591,13 @@ func LocationReport(LocationReport ngapType.InitiatingMessageValue,packet *flowM
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func UETNLABindingReleaseRequest(UETNLABindingReleaseRequest ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UETNLABindingReleaseRequest(UETNLABindingReleaseRequest ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uETNLABindingReleaseRequest := UETNLABindingReleaseRequest.UETNLABindingReleaseRequest
 	if uETNLABindingReleaseRequest != nil {
@@ -635,14 +610,13 @@ func UETNLABindingReleaseRequest(UETNLABindingReleaseRequest ngapType.Initiating
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-func UERadioCapabilityInfoIndication(UERadioCapabilityInfoIndication ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func UERadioCapabilityInfoIndication(UERadioCapabilityInfoIndication ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	uERadioCapabilityInfoIndication := UERadioCapabilityInfoIndication.UERadioCapabilityInfoIndication
 	if uERadioCapabilityInfoIndication != nil {
@@ -655,15 +629,13 @@ func UERadioCapabilityInfoIndication(UERadioCapabilityInfoIndication ngapType.In
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-
-
-func SecondaryRATDataUsageReport(SecondaryRATDataUsageReport ngapType.InitiatingMessageValue,packet *flowMap.Packet) {
+func SecondaryRATDataUsageReport(SecondaryRATDataUsageReport ngapType.InitiatingMessageValue, packet *flowMap.Packet) {
 	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
 	secondaryRATDataUsageReport := SecondaryRATDataUsageReport.SecondaryRATDataUsageReport
 	if secondaryRATDataUsageReport != nil {
@@ -676,17 +648,8 @@ func SecondaryRATDataUsageReport(SecondaryRATDataUsageReport ngapType.Initiating
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
 				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID=RAN_UE_NGAP_ID
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
-
-
-
-
-
-
-
-
-

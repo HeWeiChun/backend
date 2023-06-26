@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.ArrayList;
 @Service
 public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> implements AbstractService {
     @Autowired
@@ -66,6 +66,45 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
             n2Abnormal.put(day, n2Abnormal.getOrDefault(day, 0L) + abnormalFlow);
             n2Normal.put(day, n2Normal.getOrDefault(day, 0L) + normalFlow);
         }
+        // 转换completedTask
+        List<Map<String, Object>> completedTaskList = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : completedTask.entrySet()) {
+            String dateByDay = entry.getKey();
+            Integer count = entry.getValue();
+
+            Map<String, Object> completedTaskItem = new HashMap<>();
+            completedTaskItem.put("dateByDay", dateByDay);
+            completedTaskItem.put("completeTaskByDay", count);
+
+            completedTaskList.add(completedTaskItem);
+        }
+
+        // 转换n2Abnormal
+        List<Map<String, Object>> n2AbnormalList = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : n2Abnormal.entrySet()) {
+            String dateByDay = entry.getKey();
+            Long n2AbnormalByDay = entry.getValue();
+
+            Map<String, Object> n2AbnormalItem = new HashMap<>();
+            n2AbnormalItem.put("dateByDay", dateByDay);
+            n2AbnormalItem.put("n2AbnormalByDay", n2AbnormalByDay);
+
+            n2AbnormalList.add(n2AbnormalItem);
+        }
+
+        // 转换n2Normal
+        List<Map<String, Object>> n2NormalList = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : n2Normal.entrySet()) {
+            String dateByDay = entry.getKey();
+            Long n2NormalByDay = entry.getValue();
+
+            Map<String, Object> n2NormalItem = new HashMap<>();
+            n2NormalItem.put("dateByDay", dateByDay);
+            n2NormalItem.put("n2NormalByDay", n2NormalByDay);
+
+            n2NormalList.add(n2NormalItem);
+        }
+
 
         // 所有流
         Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 200));
@@ -95,9 +134,9 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
 
         Map<String, Object> introduce = new HashMap<>();
         introduce.put("activeTask", activeTask);
-        introduce.put("completedTask", completedTask);
-        introduce.put("n2Abnormal", n2Abnormal);
-        introduce.put("n2Normal", n2Normal);
+        introduce.put("completedTask", completedTaskList);
+        introduce.put("n2Abnormal", n2AbnormalList);
+        introduce.put("n2Normal", n2NormalList);
 
         Map<String, Object> result = new HashMap<>();
         result.put("introduce", introduce);
