@@ -99,21 +99,7 @@ def detect_taskid(model_type, taskid):
                 }
                 client.execute(update_flow_query, result_params)
             break
-        
-    normal_query = "SELECT COUNT(*) FROM SCTP.UEFlow WHERE TaskID = %(taskid)s AND StatusFlow == 100"
-    abnormal_query = "SELECT COUNT(*) FROM SCTP.UEFlow WHERE TaskID = %(taskid)s AND StatusFlow == 200"
-    normal = client.execute(normal_query, taskid_params)[0][0]
-    abnormal = client.execute(abnormal_query, taskid_params)[0][0]
-    update_task_query = 'ALTER TABLE SCTP.Task UPDATE normal = %(normal)s, abnormal = %(abnormal)s, total = %(total)s WHERE taskId = %(taskid)s'
-    
-    final_params = {
-        'normal': normal,
-        'abnormal': abnormal,
-        'total': normal + abnormal,
-        'taskid': taskid
-    }
 
-    client.execute(update_task_query, final_params)
     client.disconnect()
 
 

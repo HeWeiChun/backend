@@ -30,7 +30,9 @@ import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -196,13 +198,12 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Scheduled(cron = "0/5 * *  * * ? ")
     @Override
     public void checkStatus() {
-        log.info("执行Java的线程名字为 = " + Thread.currentThread().getName());
+        log.info("轮询数据库, 线程名字为 = " + Thread.currentThread().getName());
 
         QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Task::getStatus, 1);
         List<Task> list = taskMapper.selectList(queryWrapper);
 
-        log.info("list = " + list);
         for (Task task : list) {
             String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             task.setStatus(2);
@@ -223,11 +224,12 @@ class DetectTask {
     @Autowired
     private TaskMapper taskMapper;
     @Autowired
+    private UEFlowMapper ueFlowMapper;
+    @Autowired
     private Executor checkTaskPool;
-
     @Async("checkTaskPool")
     public void executePythonScript(String scriptPath, Task currentTask) {
-        log.info("执行Python的线程名字为 = " + Thread.currentThread().getName());
+        log.info("执行Python, 线程名字为 = " + Thread.currentThread().getName());
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("D:\\ProgramData\\anaconda3\\python.exe", scriptPath, "--file_path", currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId());
             Process process = processBuilder.start();
@@ -239,16 +241,27 @@ class DetectTask {
                 log.info(line);
             }
             int exitCode = process.waitFor();
-            log.info("Python脚本执行完毕，退出码：" + exitCode);
+            log.info("Python脚本执行完毕, 退出码：" + exitCode);
 
             String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             Task task = new Task();
             task.setTaskId(currentTask.getTaskId());
-            if (exitCode == 0)
+            if (exitCode == 0) {
+                Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 200).eq(UEFlow::getTaskID, currentTask.getTaskId()));
+                Long normalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 100).eq(UEFlow::getTaskID, currentTask.getTaskId()));
                 task.setStatus(5);
-            else
+                task.setAbnormal(Math.toIntExact(abnormalFlowAll));
+                task.setNormal(Math.toIntExact(normalFlowAll));
+                task.setTotal(Math.toIntExact(abnormalFlowAll + normalFlowAll));
+                task.setEndTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            }
+            else {
                 task.setStatus(100);
-            task.setEndTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                task.setAbnormal(null);
+                task.setNormal(null);
+                task.setTotal(null);
+                task.setEndTime(null);
+            }
 
             if (taskMapper.updateById(task) > 0) {
                 if (exitCode == 0)
@@ -275,7 +288,7 @@ class DetectTask {
 
     @Async("checkTaskPool")
     public void executeGoScript(Task currentTask) {
-        log.info("执行Go的线程名字为 = " + Thread.currentThread().getName());
+        log.info("执行Go, 线程名字为 = " + Thread.currentThread().getName());
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\sdk\\go1.20.4\\bin\\go.exe", "run", "main.go", "--pcap_path", "..\\upload\\" + currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId());
             processBuilder.directory(new File("E:\\Code\\web\\backendspringboot3\\core_go\\sctp_flowmap"));
@@ -296,6 +309,10 @@ class DetectTask {
                 task.setStatus(3);
             else {
                 task.setStatus(100);
+                task.setAbnormal(null);
+                task.setNormal(null);
+                task.setTotal(null);
+                task.setEndTime(null);
             }
 
             if (taskMapper.updateById(task) > 0) {
