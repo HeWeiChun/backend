@@ -41,9 +41,9 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
         // 活跃任务
         Map<String, Integer> activeTask = new HashMap<>();
         // 活跃任务——在线任务数(统计任务表中有多少mode为1的任务)
-        Long online = taskMapper.selectCount(new QueryWrapper<Task>().eq("mode", 1));
+        Long online = taskMapper.selectCount(new QueryWrapper<Task>().lambda().eq(Task::getMode, 1).in(Task::getStatus,0,1,2,3,4));
         // 活跃任务——离线任务数(统计任务表中有多少mode为1的任务)
-        Long offline = taskMapper.selectCount(new QueryWrapper<Task>().lambda().eq(Task::getMode, 0));
+        Long offline = taskMapper.selectCount(new QueryWrapper<Task>().lambda().eq(Task::getMode, 0).in(Task::getStatus,0,1,2,3,4));
         activeTask.put("online", online.intValue());
         activeTask.put("offline", offline.intValue());
 
@@ -146,5 +146,41 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
 
         return R.success("success", result);
     }
+    @Override
+    public R abstractByID(String taskId) {
+        // task_status
+        // status: 0(未开始),1(待解析),2(解析中),3(待检测),4(检测中),5(检测完成),100(错误)
+        // flow_status
+        // status: 0(未检测),100(检测完成且为正常)，200(检测完成且为异常)
 
+        // 介绍栏
+        // 所有流
+        Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 200).eq(UEFlow::getTaskID, taskId));
+        Long normalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 100).eq(UEFlow::getTaskID, taskId));
+        Map<String, Long> abnormalFlowBinary = new HashMap<>();
+        abnormalFlowBinary.put("normal", normalFlowAll);
+        abnormalFlowBinary.put("abnormal", abnormalFlowAll);
+
+        Map<String, Long> abnormalFlowMulti = new HashMap<>();
+        abnormalFlowMulti.put("normal", normalFlowAll);
+        abnormalFlowMulti.put("abnormal", abnormalFlowAll);
+
+
+
+        // 已检测流
+        Long activeDetectedFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().in(UEFlow::getStatusFlow, 100, 200).eq(UEFlow::getTaskID, taskId));
+
+        // 待检测流
+        Long activePendingFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 0).eq(UEFlow::getTaskID, taskId));
+
+
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("activeDetectedFlows", activeDetectedFlows);
+        result.put("activePendingFlows", activePendingFlows);
+        result.put("abnormalFlowBinary", abnormalFlowBinary);
+        result.put("abnormalFlowMulti", abnormalFlowMulti);
+
+        return R.success("success", result);
+    }
 }

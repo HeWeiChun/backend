@@ -107,9 +107,6 @@ func Decode(file string, task string) {
 				flowMap.Put(Packet_Time, flowMap.FlowTable_Time, strFlowTimeID, task)
 
 			}
-
 		}
-
 	}
-
 }

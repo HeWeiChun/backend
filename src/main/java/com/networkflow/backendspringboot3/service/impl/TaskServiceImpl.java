@@ -9,6 +9,7 @@ import com.networkflow.backendspringboot3.mapper.PacketMapper;
 import com.networkflow.backendspringboot3.mapper.TaskMapper;
 import com.networkflow.backendspringboot3.mapper.TimeFlowMapper;
 import com.networkflow.backendspringboot3.mapper.UEFlowMapper;
+import com.networkflow.backendspringboot3.model.domain.Packet;
 import com.networkflow.backendspringboot3.model.domain.Task;
 import com.networkflow.backendspringboot3.model.domain.TimeFlow;
 import com.networkflow.backendspringboot3.model.domain.UEFlow;
@@ -90,6 +91,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
     }
 
+    private void deleteCache(String taskId){
+        timeFlowMapper.delete(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getTaskID, taskId));
+        List<UEFlow> ueFlowList = ueFlowMapper.selectList(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTaskID, taskId));
+        for (UEFlow ueFlow : ueFlowList) {
+            packetMapper.delete(new QueryWrapper<Packet>().lambda().eq(Packet::getFlowUEID, ueFlow.getFlowId()));
+        }
+        ueFlowMapper.delete(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTaskID, taskId));
+    }
     @Override
     public R createTask(TaskRequest createTaskRequest, MultipartFile uploadFile) {
         Task task = new Task();
@@ -146,6 +155,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public R deleteTask(String[] taskIds) {
+        for(String taskId:taskIds){
+            deleteCache(taskId);
+        }
         if (taskMapper.deleteBatchIds(Arrays.asList(taskIds)) > 0) {
             return R.success("删除成功");
         } else {
@@ -166,8 +178,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             task.setTaskId(taskId);
             task.setStatus(1);
             // 清除缓存
-            timeFlowMapper.delete(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getTaskID, taskId));
-            ueFlowMapper.delete(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTaskID, taskId));
+            deleteCache(taskId);
 
             if (taskMapper.updateById(task) > 0) {
                 successCount++;
@@ -253,11 +264,8 @@ class DetectTask {
             Task task = new Task();
             task.setTaskId(currentTask.getTaskId());
             task.setStatus(100);
-            if (taskMapper.updateById(task) > 0) {
-                log.info("检测失败");
-            } else {
-                log.info("检测失败");
-            }
+            taskMapper.updateById(task);
+            log.info("检测失败");
         } finally {
             if (checkTaskPool instanceof ThreadPoolExecutor) {
                 ((ThreadPoolExecutor) checkTaskPool).remove(Thread.currentThread());
@@ -307,6 +315,11 @@ class DetectTask {
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            Task task = new Task();
+            task.setTaskId(currentTask.getTaskId());
+            task.setStatus(100);
+            taskMapper.updateById(task);
+            log.info("检测失败");
         }
     }
 }

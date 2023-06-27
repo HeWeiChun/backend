@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class UEFlowRequest {
-    private BigInteger FlowId;
+    private String FlowId;
     private Integer RanUeNgapId;
     private Integer TotalNum;
     private Integer StartSecond;

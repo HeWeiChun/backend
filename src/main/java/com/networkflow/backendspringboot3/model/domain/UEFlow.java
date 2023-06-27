@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 public class UEFlow {
     @TableId
-    private BigInteger FlowId;
+    private String FlowId;
     private Integer RanUeNgapId;
     private Integer TotalNum;
     private Integer StartSecond;

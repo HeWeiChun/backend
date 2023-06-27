@@ -1,6 +1,5 @@
 package com.networkflow.backendspringboot3.controller;
 
-import com.clickhouse.client.internal.google.protobuf.UInt64Value;
 import com.networkflow.backendspringboot3.common.R;
 import com.networkflow.backendspringboot3.service.PacketService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.math.BigInteger;
 
 @RestController
 @RequestMapping("/api/packet")
@@ -33,7 +30,6 @@ public class PacketController {
         if (index != -1) {
             flowId = flowId.substring(0, index);
         }
-        BigInteger intFlowid = new BigInteger(flowId);
-        return packetService.getPacketByFlowId(intFlowid);
+        return packetService.getPacketByFlowId(flowId);
     }
 }

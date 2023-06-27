@@ -24,13 +24,9 @@ public class PacketServiceImpl extends ServiceImpl<PacketMapper, Packet> impleme
     }
 
     @Override
-    public R getPacketByFlowId(BigInteger flowId) {
+    public R getPacketByFlowId(String flowId) {
         QueryWrapper<Packet> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.lambda().eq(Packet::getFlowUEID, flowId).orderByAsc(Packet::getArriveTime);
-        BigInteger startFlowId = flowId.subtract(new BigInteger(String.valueOf(1000)));
-        BigInteger endFlowId = flowId.add(new BigInteger(String.valueOf(1000)));
-        queryWrapper.lambda().between(Packet::getFlowUEID, startFlowId, endFlowId).orderByAsc(Packet::getArriveTime);
-
+        queryWrapper.lambda().eq(Packet::getFlowUEID, flowId).orderByAsc(Packet::getArriveTime);
         return R.success(null, packetMapper.selectList(queryWrapper));
     }
 }

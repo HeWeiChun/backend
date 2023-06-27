@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class TimeFlowRequest {
-    private Integer FlowId;
+    private String FlowId;
     private Integer RanUeNgapId;
     private Integer TotalNum;
     private LocalDateTime BeginTime;

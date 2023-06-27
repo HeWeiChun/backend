@@ -16,7 +16,7 @@ public class PacketRequest {
     private String SrcIP;
     private String DstIP;
     private Integer DirSeq;
-    private Integer FlowUEID;
-    private Integer FlowTimeID;
+    private String FlowUEID;
+    private String FlowTimeID;
     private Integer StatusPacket;
 }

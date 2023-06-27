@@ -6,4 +6,5 @@ import com.networkflow.backendspringboot3.model.domain.Abstract;
 
 public interface AbstractService extends IService<Abstract> {
     R allAbstract();
+    R abstractByID(String taskId);
 }
