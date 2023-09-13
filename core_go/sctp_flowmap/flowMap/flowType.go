@@ -81,7 +81,7 @@ func storeFlow(flowId string, flowInfo *FlowInfo, flowTable []*Flow) {
 		flowTable[numFlowId%TABLE_SIZE] = &Flow{info: flowInfo, next: nil}
 	} else {
 		next := cur
-		for next.next != cur {
+		for next.next != nil {
 			next = next.next
 		}
 		next.next = &Flow{info: flowInfo, next: nil}

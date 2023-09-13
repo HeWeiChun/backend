@@ -71,11 +71,17 @@ func Decode(file string, task string) {
 					}
 				}
 				ip4Layer := packet.Layer(layers.LayerTypeIPv4)
+				ip6Layer := packet.Layer(layers.LayerTypeIPv6)
 				if ip4Layer != nil {
 					if ipv4, ok := ip4Layer.(*layers.IPv4); ok {
 						Packet_UE.DstIP = ipv4.DstIP.String()
-						//fmt.Println(Packet_UE.DstIP)
 						Packet_UE.SrcIP = ipv4.SrcIP.String()
+					}
+				}
+				if ip6Layer != nil {
+					if ipv6, ok := ip6Layer.(*layers.IPv6); ok {
+						Packet_UE.DstIP = ipv6.DstIP.String()
+						Packet_UE.SrcIP = ipv6.SrcIP.String()
 					}
 				}
 

@@ -33,3 +33,9 @@ build/
 .vscode/
 /core/upload/
 /core_go/upload/
+/qodana.yaml
+
+### DataSet ###
+*.pcap
+*.pcapng
+*.csv
