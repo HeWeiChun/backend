@@ -31,7 +31,8 @@ def detect(model_type, file_path, taskid):
     if len(X) > 0:
         y_predict = model.predict(X)
         print("Total traffic:", len(X), " Abnormal traffic: ", sum(y_predict >= 1))
-        query = 'ALTER TABLE SCTP.Task UPDATE normal = %(normal)s, abnormal = %(abnormal)s, total = %(total)s WHERE taskId = %(taskid)s'
+        query = ('ALTER TABLE SCTP.Task UPDATE normal = %(normal)s, abnormal = %(abnormal)s, total = %(total)s '
+                 'WHERE taskId = %(taskid)s')
         params = {
             'normal': sum(y_predict == 0),
             'abnormal': sum(y_predict >= 1),
@@ -41,7 +42,8 @@ def detect(model_type, file_path, taskid):
         client.execute(query, params)
     else:
         print("All normal traffic")
-        query = 'ALTER TABLE SCTP.Task UPDATE normal = %(normal)s, abnormal = %(abnormal)s, total = %(total)s WHERE taskId = %(taskid)s'
+        query = ('ALTER TABLE SCTP.Task UPDATE normal = %(normal)s, abnormal = %(abnormal)s, total = %(total)s '
+                 'WHERE taskId = %(taskid)s')
         params = {
             'normal': 0,
             'abnormal': 0,
@@ -54,7 +56,7 @@ def detect(model_type, file_path, taskid):
 
 def detect_taskid(model_type, taskid):
     # 加载模型
-    loss_p = 10
+    loss_p = 60000
     print(model_type)
     if model_type == '0':  # XGBoost二分类模型
         model_path = "core_go/Python/model/model_bin_UEID.pkl"
@@ -87,7 +89,8 @@ def detect_taskid(model_type, taskid):
         if model_type == '2':
             for id in flow_id:
                 # 获取当前流的所有包
-                packet = "SELECT PacketLen,TimeInterval,NgapType FROM SCTP.Packet WHERE FlowUEID = %(flowid)s ORDER BY ArriveTime"
+                packet = ("SELECT PacketLen,TimeInterval,NgapType FROM SCTP.Packet "
+                          "WHERE FlowUEID = %(flowid)s ORDER BY ArriveTime")
                 packet_params = {'flowid': id}
                 result = client.execute(packet, packet_params)
                 # 特征提取 & 模型检测

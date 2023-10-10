@@ -12,8 +12,6 @@ import (
 	"strconv"
 )
 
-var taskID string
-
 func Decode(file string, task string) {
 	//fmt.Println("===============This project is for decoding the pcap file of NGAP and getting the info of some necessary bytes.===============")
 	//fmt.Println("===============Created by Galadriel on 6/26/2022===============")
@@ -42,13 +40,16 @@ func Decode(file string, task string) {
 			payload := applicationLayer.Payload()
 
 			Packet_UE := &flowMap.Packet{
-				NgapPayloadBytes: payload,
-				ArriveTimeUs:     packet.Metadata().Timestamp.UnixNano(),
-				ArriveTime:       packet.Metadata().Timestamp,
-				RAN_UE_NGAP_ID:   -1,
-				PayloadBytes:     packet.Data(),
-				PacketLen:        uint(len(packet.Data())),
-				TimeID:           "0",
+				NgapPayloadBytes:    payload,
+				ArriveTimeUs:        packet.Metadata().Timestamp.UnixNano(),
+				ArriveTime:          packet.Metadata().Timestamp,
+				RAN_UE_NGAP_ID:      -1,
+				PayloadBytes:        packet.Data(),
+				PacketLen:           uint32(len(packet.Data())),
+				TimeID:              "0",
+				InitiatingMessage:   0,
+				SuccessfulOutcome:   0,
+				UnsuccessfulOutcome: 0,
 			}
 
 			var DecResult *ngapType.NGAPPDU
@@ -86,23 +87,27 @@ func Decode(file string, task string) {
 				}
 
 				Packet_Time := &flowMap.Packet{
-					NgapPayloadBytes:  Packet_UE.NgapPayloadBytes,
-					ArriveTimeUs:      Packet_UE.ArriveTimeUs,
-					ArriveTime:        Packet_UE.ArriveTime,
-					RAN_UE_NGAP_ID:    Packet_UE.RAN_UE_NGAP_ID,
-					PayloadBytes:      packet.Data(),
-					PacketLen:         uint(len(packet.Data())),
-					VerificationTag:   Packet_UE.VerificationTag,
-					DstIP:             Packet_UE.DstIP,
-					SrcIP:             Packet_UE.SrcIP,
-					NgapType:          Packet_UE.NgapType,
-					NgapProcedureCode: Packet_UE.NgapProcedureCode,
+					NgapPayloadBytes:    Packet_UE.NgapPayloadBytes,
+					ArriveTimeUs:        Packet_UE.ArriveTimeUs,
+					ArriveTime:          Packet_UE.ArriveTime,
+					RAN_UE_NGAP_ID:      Packet_UE.RAN_UE_NGAP_ID,
+					PayloadBytes:        packet.Data(),
+					PacketLen:           uint32(len(packet.Data())),
+					VerificationTag:     Packet_UE.VerificationTag,
+					DstIP:               Packet_UE.DstIP,
+					SrcIP:               Packet_UE.SrcIP,
+					NgapType:            Packet_UE.NgapType,
+					NgapProcedureCode:   Packet_UE.NgapProcedureCode,
+					InitiatingMessage:   Packet_UE.InitiatingMessage,
+					SuccessfulOutcome:   Packet_UE.SuccessfulOutcome,
+					UnsuccessfulOutcome: Packet_UE.UnsuccessfulOutcome,
 				}
 
-				flowUEID, ID := flowMap.Count_UE_ID(Packet_UE)
+				flowUEID, ID := flowMap.Count_UE_ID(Packet_UE, task)
 				strFlowUEID := strconv.FormatUint(flowUEID, 10)
 				Packet_UE.FlowID = strFlowUEID
 				if ID {
+
 					flowMap.Put(Packet_UE, flowMap.FlowTable_UE, strFlowUEID, task)
 				}
 
@@ -111,7 +116,6 @@ func Decode(file string, task string) {
 				Packet_Time.TimeID = strFlowUEID
 				Packet_Time.FlowID = strFlowTimeID
 				flowMap.Put(Packet_Time, flowMap.FlowTable_Time, strFlowTimeID, task)
-
 			}
 		}
 	}

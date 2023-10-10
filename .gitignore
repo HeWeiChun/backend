@@ -39,3 +39,6 @@ build/
 *.pcap
 *.pcapng
 *.csv
+
+### qodana ###
+.github/

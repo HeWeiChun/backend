@@ -3,47 +3,48 @@ import math
 import numpy as np
 
 # 协议类型
-weight=[12.0, 24.0, 1000.0]
+weight = [12.0, 24.0, 1000.0]
 min_interval_time = 1e-5
 
-NGAP_TYPE = dict({'PDUSessionResourceSetupRequest':1,'PDUSessionResourceSetupResponse':100001,
-                  'PDUSessionResourceReleaseCommand':40,'PDUSessionResourceReleaseResponse':100040,
-                  'PDUSessionResourceModifyRequest':75,'PDUSessionResourceModifyResponse':100075,
-                  'PDUSessionResourceNotify':100,
-                  'PDUSessionResourceModifyIndication':301,'PDUSessionResourceModifyConfirm':100301,
-                  'InitialContextSetupRequest':550,'InitialContextSetupResponse':100550,'InitialContextSetupFailure':9900550,
-                  'UEContextReleaseRequest':799,
-                  'UEContextReleaseCommand':1000,'UEContextReleaseComplete':101000,
-                  'UEContextModificationRequest':2001,'UEContextModificationResponse':102001,'UEContextModificationFailure':9902001,
-                  'RRCInactiveTransitionReport':3050,
-                  'HandoverRequired':3099,'HandoverCommand':103099,'HandoverPreparationFailure':9903099,
-                  'HandoverRequestAcknowledge':4100,
-                  'HandoverNotify':5301,
-                  'PathSwitchRequest':6550,'PathSwitchRequestAcknowledge':106550,'PathSwitchRequestFailure':9906550,
-                  'HandoverCancel':7799,'HandoverCancelAcknowledge':107799,
-                  'UplinkRANStatusTransfer':10000,
-                  'DownlinkRANStatusTransfer':110000,
-                  'InitialUEMessage':20001,
-                  'DownlinkNASTransport':30050,
-                  'UplinkNASTransport':130050,
-                  'NASNonDeliveryIndication':40099,
-                  'RerouteNASRequest':50100,
-                  'ErrorIndication':9910000,
-                  'DownlinkUEAssociatedNRPPaTransport':50301,
-                  'UplinkUEAssociatedNRPPaTransport':150301,
-                  'TraceStart':60550,
-                  'TraceFailureIndication':60799,
-                  'DeactivateTrace':61000,
-                  'CellTrafficTrace':62001,
-                  'LocationReportingControl':63050,
-                  'LocationReportingFailureIndication':9990000,
-                  'LocationReport':74099,
-                  'UETNLABindingReleaseRequest':75301,
-                  'UERadioCapabilityInfoIndication':76550,
-                  'UERadioCapabilityCheckRequest':77799,'UERadioCapabilityCheckResponse':177799,
-                  'SecondaryRATDataUsageReport':80000,})
-
-
+NGAP_TYPE = dict({'PDUSessionResourceSetupRequest': 1, 'PDUSessionResourceSetupResponse': 100001,
+                  'PDUSessionResourceReleaseCommand': 40, 'PDUSessionResourceReleaseResponse': 100040,
+                  'PDUSessionResourceModifyRequest': 75, 'PDUSessionResourceModifyResponse': 100075,
+                  'PDUSessionResourceNotify': 100,
+                  'PDUSessionResourceModifyIndication': 301, 'PDUSessionResourceModifyConfirm': 100301,
+                  'InitialContextSetupRequest': 550, 'InitialContextSetupResponse': 100550,
+                  'InitialContextSetupFailure': 9900550,
+                  'UEContextReleaseRequest': 799,
+                  'UEContextReleaseCommand': 1000, 'UEContextReleaseComplete': 101000,
+                  'UEContextModificationRequest': 2001, 'UEContextModificationResponse': 102001,
+                  'UEContextModificationFailure': 9902001,
+                  'RRCInactiveTransitionReport': 3050,
+                  'HandoverRequired': 3099, 'HandoverCommand': 103099, 'HandoverPreparationFailure': 9903099,
+                  'HandoverRequestAcknowledge': 4100,
+                  'HandoverNotify': 5301,
+                  'PathSwitchRequest': 6550, 'PathSwitchRequestAcknowledge': 106550,
+                  'PathSwitchRequestFailure': 9906550,
+                  'HandoverCancel': 7799, 'HandoverCancelAcknowledge': 107799,
+                  'UplinkRANStatusTransfer': 10000,
+                  'DownlinkRANStatusTransfer': 110000,
+                  'InitialUEMessage': 20001,
+                  'DownlinkNASTransport': 30050,
+                  'UplinkNASTransport': 130050,
+                  'NASNonDeliveryIndication': 40099,
+                  'RerouteNASRequest': 50100,
+                  'ErrorIndication': 9910000,
+                  'DownlinkUEAssociatedNRPPaTransport': 50301,
+                  'UplinkUEAssociatedNRPPaTransport': 150301,
+                  'TraceStart': 60550,
+                  'TraceFailureIndication': 60799,
+                  'DeactivateTrace': 61000,
+                  'CellTrafficTrace': 62001,
+                  'LocationReportingControl': 63050,
+                  'LocationReportingFailureIndication': 9990000,
+                  'LocationReport': 74099,
+                  'UETNLABindingReleaseRequest': 75301,
+                  'UERadioCapabilityInfoIndication': 76550,
+                  'UERadioCapabilityCheckRequest': 77799, 'UERadioCapabilityCheckResponse': 177799,
+                  'SecondaryRATDataUsageReport': 80000, })
 
 
 def extraction(packet):
@@ -63,7 +64,7 @@ def extraction(packet):
     v = []
     for i in range(0, N):
         p0 = packet[i][0]
-        p1 = float(packet[i][1])/1000000000+min_interval_time
+        p1 = float(packet[i][1]) / 1000000000 + min_interval_time
         if packet[i][2] in NGAP_TYPE:
             p2 = NGAP_TYPE[packet[i][2]]
         else:
@@ -95,7 +96,8 @@ def extraction(packet):
         feature.append(temp_ri)
     return feature
 
-def packetParse(filename,feature,weight,len_go):
+
+def packetParse(filename, feature, weight, len_go):
     file = open(filename, 'r', encoding='utf-8')
     for line in file.readlines():
         packet = []
@@ -109,7 +111,7 @@ def packetParse(filename,feature,weight,len_go):
                 packet_type = NGAP_TYPE[Ntype_new]
             else:
                 packet_type = 11
-            if packet_time>=0 :
+            if packet_time >= 0:
                 packet.append([packet_length, packet_time, packet_type])
         N = len(packet)  # 数据包数量
 
@@ -118,9 +120,9 @@ def packetParse(filename,feature,weight,len_go):
         C = 10
         Wseg = 18
         if N < Wseg:
-            for i in range(N,Wseg):
-                packet.append([1,min_interval_time,1])
-        N=len(packet)
+            for i in range(N, Wseg):
+                packet.append([1, min_interval_time, 1])
+        N = len(packet)
         Kf = int(Wseg / 2) + 1
         w = weight
         # Packet Feature Encoding
@@ -153,10 +155,11 @@ def packetParse(filename,feature,weight,len_go):
             feature.append(temp_ri)
     return feature
 
-def N2_TestData(file_nom,file_ano,weight):
-    #print("测试初始数据处理...")
-    feature_nom = packetParse(file_nom,[],weight,18)
-    feature_ano = packetParse(file_ano,[],weight,18)
+
+def N2_TestData(file_nom, file_ano, weight):
+    # print("测试初始数据处理...")
+    feature_nom = packetParse(file_nom, [], weight, 18)
+    feature_ano = packetParse(file_ano, [], weight, 18)
     len_nom = len(feature_nom)
     len_ano = len(feature_ano)
     len_all = len_ano + len_nom
@@ -168,18 +171,19 @@ def N2_TestData(file_nom,file_ano,weight):
     tag[len_nom:len_all] = tag_ano
     feature[0:len_nom] = feature_nom
     feature[len_nom:len_all] = feature_ano
-    #print("数据处理成功！")
-    return feature,tag
+    # print("数据处理成功！")
+    return feature, tag
 
-def N2_TestNom(file_ano,weight):
-    feature_nom = packetParse(file_ano, weight,6)
+
+def N2_TestNom(file_ano, weight):
+    feature_nom = packetParse(file_ano, weight, 6)
     len_nom = len(feature_nom)
     tag_nom = np.ones(len_nom)
     return feature_nom, tag_nom
 
 
-def N2_TestAno(file_ano,weight):
-    feature_ano = packetParse(file_ano, weight,6)
+def N2_TestAno(file_ano, weight):
+    feature_ano = packetParse(file_ano, weight, 6)
     len_ano = len(feature_ano)
     tag_ano = np.zeros(len_ano)
     return feature_ano, tag_ano
