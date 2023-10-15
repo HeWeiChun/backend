@@ -4,68 +4,32 @@ import random
 import time
 
 import joblib
-import pandas as pd
 import numpy as np
+import pandas as pd
 from clickhouse_driver import Client
 
 import module.feature_extraction as fe
 import module.whisper_feature_extraction as whisper
-import module.read_pcap as rp
 
 client = Client(host='10.3.242.84', port=9000, user='default', password='password')
-
-
-def detect(model_type, file_path, taskid):
-    file_path = "E:\\Code\\web\\backendspringboot3\\core\\upload\\" + file_path
-    suffix = file_path.split(".")[-1]
-    if suffix == "pcap" or suffix == "pcapng":
-        a = rp.read_pcap(file_path)
-    elif suffix == "csv":
-        a = pd.read_csv(file_path)
-    X, y = fe.get_dataset(a, client, taskid)
-    if model_type == 'bin':
-        model_path = "/core/python/model/model_bin_UEID.pkl"
-    else:
-        model_path = "E:/Code/web/backendspringboot3/core_go/Python/model/model_multi_UEID.pkl"
-    model = joblib.load(model_path)
-    if len(X) > 0:
-        y_predict = model.predict(X)
-        print("Total traffic:", len(X), " Abnormal traffic: ", sum(y_predict >= 1))
-        query = ('ALTER TABLE SCTP.Task UPDATE normal = %(normal)s, abnormal = %(abnormal)s, total = %(total)s '
-                 'WHERE taskId = %(taskid)s')
-        params = {
-            'normal': sum(y_predict == 0),
-            'abnormal': sum(y_predict >= 1),
-            'total': len(X),
-            'taskid': taskid
-        }
-        client.execute(query, params)
-    else:
-        print("All normal traffic")
-        query = ('ALTER TABLE SCTP.Task UPDATE normal = %(normal)s, abnormal = %(abnormal)s, total = %(total)s '
-                 'WHERE taskId = %(taskid)s')
-        params = {
-            'normal': 0,
-            'abnormal': 0,
-            'total': 0,
-            'taskid': taskid
-        }
-        client.execute(query, params)
-    client.disconnect()
 
 
 def detect_taskid(model_type, taskid):
     # 加载模型
     loss_p = 60000
-    print(model_type)
-    if model_type == '0':  # XGBoost二分类模型
-        model_path = "core_go/Python/model/model_bin_UEID.pkl"
-    elif model_type == '1':  # XGBoost多分类模型
-        model_path = "core_go/Python/model/model_multi_UEID.pkl"
-    elif model_type == '2':  # 多分类模型
+
+    if model_type == '0':  # XGBoost(UEID聚合)
+        model_path = "core_go/Python/model/ueid_XGBoost1010.pkl"
+        print("Current model: XGBoost(UEID)")
+    elif model_type == '1':  # XGBoost(Time聚合)
+        model_path = "core_go/Python/model/time_XGBoost1010.pkl"
+        print("Current model: XGBoost(Time)")
+    elif model_type == '2':  # Whipser模型(UEID聚合)
         model_path = "core_go/Python/model/kmeans.pkl"
+        print("Current model: Whipser(UEID)")
     else:
-        model_path = "core_go/Python/model/model_bin_UEID.pkl"
+        model_path = "core_go/Python/model/ueid_XGBoost1010.pkl"
+        print("Invalid model type. Use default model: XGBoost(UEID)")
     model = joblib.load(model_path)
 
     random.seed(27)
@@ -102,7 +66,7 @@ def detect_taskid(model_type, taskid):
                 labels = model.predict(feature)
                 prediction = []
                 # print("开始测试数据...")
-                print(train_loss)
+                # print(train_loss)
                 predict_code = 100
                 for i in range(len(feature)):
                     temp = feature[i] - centers[labels[i]]
@@ -131,18 +95,17 @@ def detect_taskid(model_type, taskid):
                 # 提取原始特征(包长, 时间戳, 序列方向)
                 X = []
                 for row in result:
-                    dirseq = row[10]
-                    if dirseq == 1:
-                        dirseq = 1
-                    else:
-                        dirseq = -1
-                    X.append([row[2], row[3], row[5], dirseq, 1])
-                df = pd.DataFrame(X, columns=["RAN-UE-NGAP-ID", "Length", "Time", "DirSeq", "Label"])
+                    X.append([row[1], row[2], row[3], row[5], row[10], row[13], row[14], row[15]])
+                df = pd.DataFrame(X, columns=["ProcedureCode", "RAN-UE-NGAP-ID", "PacketLen", "Time", "DirSeq",
+                                              "InitiatingMessage", "SuccessfulOutcome", "UnsuccessfulOutcome"])
                 df['Time'] = df['Time'].astype('int64') / 10 ** 9
 
                 # 特征提取 & 模型检测
-                feature, label = fe.feature_extract(df)
-                y_predict = model.predict([feature])[0]
+                if len(df) > 1:
+                    feature = fe.ngap_feature_extract(df)
+                    y_predict = model.predict([feature])[0]
+                else:
+                    y_predict = 0
                 if y_predict == 0:
                     predict_code = 100
                 else:
@@ -161,14 +124,11 @@ def detect_taskid(model_type, taskid):
 
 def main(parser):
     args = parser.parse_args()
-    # detect(args.model_type, args.file_path, args.taskid)
     detect_taskid(args.model, args.taskid)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--file_path', required=True, type=str)
-    # parser.add_argument('--file_path',default=".\dataset\mix_dataset_test.csv",type=str)
     parser.add_argument('--model', required=True, type=str)
     parser.add_argument('--taskid', required=True, type=str)
     main(parser)

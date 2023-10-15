@@ -141,7 +141,7 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
         Map<String, Object> result = new HashMap<>();
         result.put("introduce", introduce);
         result.put("abnormalFlowBinary", abnormalFlowBinary);
-        result.put("abnormalFlowMulti", abnormalFlowMulti);
+        result.put("abnormalFlowMulti", abnormalFlowMulti) ;
         result.put("abnormalEvent", abnormalEvent);
 
         return R.success("success", result);
