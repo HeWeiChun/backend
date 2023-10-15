@@ -2,247 +2,241 @@ package NGAP
 
 import (
 	"github.com/Freddy/sctp_flowmap/flowMap"
+
+	//"github.com/free5gc/ngap"
 	"github.com/free5gc/ngap/ngapType"
+	//"github.com/google/gopacket"
+	//"github.com/google/gopacket/pcap"
 )
 
-// AMFConfigurationUpdateAcknowledgeDecoder ProcedureCode = 0
-func AMFConfigurationUpdateAcknowledgeDecoder() {
+func NGSetupResponseDecoder(NGSetup ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============NGSetupResponseDecoder begins working.==============")
+	//fmt.Println("===============Nothing Need in the NGSetupResponse.===============")
 }
-
-// HandoverCancelAcknowledgeDecoder ProcedureCode = 10
-func HandoverCancelAcknowledgeDecoder(HandoverCancelAcknowledge ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := HandoverCancelAcknowledge.HandoverCancelAcknowledge
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// HandoverCommandDecoder ProcedureCode = 12
-func HandoverCommandDecoder(HandoverCommand ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := HandoverCommand.HandoverCommand
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// HandoverRequestAcknowledgeDecoder ProcedureCode = 13
-func HandoverRequestAcknowledgeDecoder(HandoverRequestAcknowledge ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := HandoverRequestAcknowledge.HandoverRequestAcknowledge
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// InitialContextSetupResponseDecoder ProcedureCode = 15
-func InitialContextSetupResponseDecoder(InitialContextSetupResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := InitialContextSetupResponse.InitialContextSetupResponse
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// NGResetAcknowledgeDecoder ProcedureCode = 20
-func NGResetAcknowledgeDecoder() {
-
-}
-
-// NGSetupResponseDecoder ProcedureCode = 21
-func NGSetupResponseDecoder() {
-
-}
-
-// PathSwitchRequestAcknowledgeDecoder ProcedureCode = 25
-func PathSwitchRequestAcknowledgeDecoder(PathSwitchRequestAcknowledge ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := PathSwitchRequestAcknowledge.PathSwitchRequestAcknowledge
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// PDUSessionResourceModifyResponseDecoder ProcedureCode = 26
-func PDUSessionResourceModifyResponseDecoder(PDUSessionResourceModifyResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := PDUSessionResourceModifyResponse.PDUSessionResourceModifyResponse
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// PDUSessionResourceModifyConfirmDecoder ProcedureCode = 27
-func PDUSessionResourceModifyConfirmDecoder(PDUSessionResourceModifyConfirm ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := PDUSessionResourceModifyConfirm.PDUSessionResourceModifyConfirm
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// PDUSessionResourceReleaseResponseDecoder ProcedureCode = 28
-func PDUSessionResourceReleaseResponseDecoder(PDUSessionResourceReleaseResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := PDUSessionResourceReleaseResponse.PDUSessionResourceReleaseResponse
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// PDUSessionResourceSetupResponseDecoder ProcedureCode = 29
-func PDUSessionResourceSetupResponseDecoder(PDUSessionResourceSetupResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := PDUSessionResourceSetupResponse.PDUSessionResourceSetupResponse
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
-			switch ie.Id.Value {
-			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
-			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
-			}
-		}
-	}
-}
-
-// PWSCancelResponseDecoder ProcedureCode = 30
-func PWSCancelResponseDecoder() {
-}
-
-// RANConfigurationUpdateAcknowledgeDecoder ProcedureCode = 35
 func RANConfigurationUpdateAcknowledgeDecoder() {
+	//fmt.Println("===============RANConfigurationUpdateAcknowledgeDecoder begins working.===============")
+	//fmt.Println("===============Nothing Need in the RANConfigurationUpdateAcknowledge.===============")
 }
 
-// UEContextModificationResponseDecoder ProcedureCode = 40
-func UEContextModificationResponseDecoder(UEContextModificationResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := UEContextModificationResponse.UEContextModificationResponse
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
+func InitialContextSetupResDecoder(InitialContextSetupRes ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	initiatingContextSetupRes := InitialContextSetupRes.InitialContextSetupResponse
+	if initiatingContextSetupRes != nil {
+		for i := 0; i < len(initiatingContextSetupRes.ProtocolIEs.List); i++ {
+			ie := initiatingContextSetupRes.ProtocolIEs.List[i]
 			switch ie.Id.Value {
 			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
 				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-// UEContextReleaseCompleteDecoder ProcedureCode = 41
-func UEContextReleaseCompleteDecoder(UEContextReleaseComplete ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := UEContextReleaseComplete.UEContextReleaseComplete
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
+func PDUSessionResourceSetupResDecoder(PDUSessionResourceSetupRes ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	pDUSessionResourceSetupRes := PDUSessionResourceSetupRes.PDUSessionResourceSetupResponse
+	if pDUSessionResourceSetupRes != nil {
+		for i := 0; i < len(pDUSessionResourceSetupRes.ProtocolIEs.List); i++ {
+			ie := pDUSessionResourceSetupRes.ProtocolIEs.List[i]
 			switch ie.Id.Value {
 			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+func PDUSessionResourceReleaseDecoder(PDUSessionResourceRelease ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	pDUSessionResourceRelease := PDUSessionResourceRelease.PDUSessionResourceReleaseResponse
+	if pDUSessionResourceRelease != nil {
+		for i := 0; i < len(pDUSessionResourceRelease.ProtocolIEs.List); i++ {
+			ie := pDUSessionResourceRelease.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
 				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-// UERadioCapabilityCheckResponseDecoder ProcedureCode = 43
-func UERadioCapabilityCheckResponseDecoder(UERadioCapabilityCheckResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
-	ies := UERadioCapabilityCheckResponse.UERadioCapabilityCheckResponse
-	if ies != nil {
-		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
-			ie := ies.ProtocolIEs.List[i]
+func PDUSessionResourceModifySucDecoder(PDUSessionResourceModify ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	pDUSessionResourceModify := PDUSessionResourceModify.PDUSessionResourceModifyResponse
+	if pDUSessionResourceModify != nil {
+		for i := 0; i < len(pDUSessionResourceModify.ProtocolIEs.List); i++ {
+			ie := pDUSessionResourceModify.ProtocolIEs.List[i]
 			switch ie.Id.Value {
 			case ngapType.ProtocolIEIDAMFUENGAPID:
-				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
 				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-// WriteReplaceWarningResponseDecoder ProcedureCode = 45
-func WriteReplaceWarningResponseDecoder() {
+func PDUSessionResourceModifyConfirm(PDUSessionResourceModifyConfirm ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	pDUSessionResourceModifyConfirm := PDUSessionResourceModifyConfirm.PDUSessionResourceModifyConfirm
+	if pDUSessionResourceModifyConfirm != nil {
+		for i := 0; i < len(pDUSessionResourceModifyConfirm.ProtocolIEs.List); i++ {
+			ie := pDUSessionResourceModifyConfirm.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+func UEContextReleaseComplete(UEContextReleaseComplete ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	uEContextReleaseComplete := UEContextReleaseComplete.UEContextReleaseComplete
+	if uEContextReleaseComplete != nil {
+		for i := 0; i < len(uEContextReleaseComplete.ProtocolIEs.List); i++ {
+			ie := uEContextReleaseComplete.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+func UEContextModificationResponse(UEContextModificationResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	uEContextModificationResponse := UEContextModificationResponse.UEContextModificationResponse
+	if uEContextModificationResponse != nil {
+		for i := 0; i < len(uEContextModificationResponse.ProtocolIEs.List); i++ {
+			ie := uEContextModificationResponse.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+func HandoverCommand(HandoverCommand ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	handoverCommand := HandoverCommand.HandoverCommand
+	if handoverCommand != nil {
+		for i := 0; i < len(handoverCommand.ProtocolIEs.List); i++ {
+			ie := handoverCommand.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+func HandoverRequestAcknowledge(HandoverRequestAcknowledge ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	handoverRequestAcknowledge := HandoverRequestAcknowledge.HandoverRequestAcknowledge
+	if handoverRequestAcknowledge != nil {
+		for i := 0; i < len(handoverRequestAcknowledge.ProtocolIEs.List); i++ {
+			ie := handoverRequestAcknowledge.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+func PathSwitchRequestAcknowledge(PathSwitchRequestAcknowledge ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	pathSwitchRequestAcknowledge := PathSwitchRequestAcknowledge.PathSwitchRequestAcknowledge
+	if pathSwitchRequestAcknowledge != nil {
+		for i := 0; i < len(pathSwitchRequestAcknowledge.ProtocolIEs.List); i++ {
+			ie := pathSwitchRequestAcknowledge.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+func HandoverCancelAcknowledge(HandoverCancelAcknowledge ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	handoverCancelAcknowledge := HandoverCancelAcknowledge.HandoverCancelAcknowledge
+	if handoverCancelAcknowledge != nil {
+		for i := 0; i < len(handoverCancelAcknowledge.ProtocolIEs.List); i++ {
+			ie := handoverCancelAcknowledge.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+func UERadioCapabilityCheckResponse(UERadioCapabilityCheckResponse ngapType.SuccessfulOutcomeValue, packet *flowMap.Packet) {
+	//fmt.Println("===============UplinkNASTransportDecoder begins working.===============")
+	uERadioCapabilityCheckResponse := UERadioCapabilityCheckResponse.UERadioCapabilityCheckResponse
+	if uERadioCapabilityCheckResponse != nil {
+		for i := 0; i < len(uERadioCapabilityCheckResponse.ProtocolIEs.List); i++ {
+			ie := uERadioCapabilityCheckResponse.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
+				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
 }

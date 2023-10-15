@@ -59,9 +59,8 @@ func main() {
 
 	//flowMap.ItFlowMap(flowMap.FlowTable_UE)
 	//flowMap.ItFlowMap(flowMap.FlowTable_Time)
-	fmt.Println("等待存储到数据库")
 	flowMap.UEFlowMapToStore()
-	flowMap.TimeFlowMapToStore(*taskID)
+	flowMap.TimeFlowMapToStore()
 	//flowMap.ItFlowMap(flowMap.FlowTable_Time)
 
 }

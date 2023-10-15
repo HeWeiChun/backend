@@ -37,9 +37,6 @@ func InsertPacket(PacketList *list.List) {
 			packet_sql.DirSeq,
 			packet_sql.FlowUEID,
 			packet_sql.FlowTimeID,
-			packet_sql.InitiatingMessage,
-			packet_sql.SuccessfulOutcome,
-			packet_sql.UnsuccessfulOutcome,
 			packet_sql.StatusPacket,
 		); err != nil {
 			log.Fatal(err)

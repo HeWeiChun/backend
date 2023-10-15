@@ -6,7 +6,6 @@ import (
 	"github.com/Freddy/sctp_flowmap/database/PacketDB"
 	"github.com/Freddy/sctp_flowmap/database/TimeFlow"
 	"github.com/Freddy/sctp_flowmap/database/UEFlow"
-	"strconv"
 )
 
 var (
@@ -23,13 +22,13 @@ func init() {
 	FlowTable_Time = make([]*Flow, TABLE_SIZE)
 }
 
-func Count_UE_ID(packet *Packet, taskid string) (uint64, bool) {
+func Count_UE_ID(packet *Packet) (uint64, bool) {
 	RAN_UE_NGAP_ID := packet.RAN_UE_NGAP_ID
 	if RAN_UE_NGAP_ID == -1 {
 		return 0, false
 	}
 	//flowID := FastFourHash(string(packet.SrcIP), string(packet.DstIP), string(RAN_UE_NGAP_ID),string(packet.VerificationTag))
-	flowID := FastTwoHash([]byte(strconv.FormatInt(RAN_UE_NGAP_ID, 10)), []byte(taskid))
+	flowID := FastTwoHash([]byte(string(RAN_UE_NGAP_ID)), []byte(string(packet.VerificationTag)))
 	//flowID := FnvHash([]byte(string(RAN_UE_NGAP_ID)))
 	return flowID, true
 
@@ -46,7 +45,7 @@ func Put(packet *Packet, flowTable []*Flow, flowID string, taskid string) bool {
 	var first = false // 是否流的首包
 	flowInfo, isExist := loadFlow(flowID, flowTable)
 	if isExist {
-		packet.TimeInterval = uint64(packet.ArriveTimeUs - flowInfo.EndTimeUs + min_intervl)
+		packet.TimeInterval = packet.ArriveTimeUs - flowInfo.EndTimeUs + min_intervl
 		flowInfo.EndTime = packet.ArriveTime
 		flowInfo.EndTimeUs = packet.ArriveTimeUs
 		flowInfo.PacketList.PushBack(packet)
@@ -61,7 +60,7 @@ func Put(packet *Packet, flowTable []*Flow, flowID string, taskid string) bool {
 		// 首次接收，创建流info
 		flowInfo = &FlowInfo{
 			FlowID:          flowID,
-			RAN_UE_NGAP_ID:  int64(packet.RAN_UE_NGAP_ID),
+			RAN_UE_NGAP_ID:  packet.RAN_UE_NGAP_ID,
 			FlowType:        NGAPType,
 			TotalNum:        1,
 			VerificationTag: packet.VerificationTag,
@@ -72,7 +71,7 @@ func Put(packet *Packet, flowTable []*Flow, flowID string, taskid string) bool {
 			TaskID:          taskid,
 		}
 		packet.DirSeq = 1
-		packet.TimeInterval = uint64(min_intervl)
+		packet.TimeInterval = min_intervl
 		flowInfo.EndTime = packet.ArriveTime
 		flowInfo.EndTimeUs = packet.ArriveTimeUs
 		flowInfo.PacketList = list.List{}
@@ -139,7 +138,7 @@ func UEflowStore(rubbishList *list.List) {
 	for info := rubbishList.Front(); info != nil; info = info.Next() {
 		flowInfo := info.Value.(*FlowInfo)
 		fl := &UEFlow.UeFlow{
-			FlowId:          flowInfo.FlowID,
+			FlowId:          string(flowInfo.FlowID),
 			RanUeNgapId:     uint64(flowInfo.RAN_UE_NGAP_ID),
 			TotalNum:        uint32(flowInfo.TotalNum),
 			BeginTime:       flowInfo.BeginTime,
@@ -159,7 +158,7 @@ func UEflowStore(rubbishList *list.List) {
 
 }
 
-func TimeFlowMapToStore(taskid string) {
+func TimeFlowMapToStore() {
 	var rubbishList = list.New()
 	for _, flow := range FlowTable_Time {
 		if flow == nil {
@@ -174,16 +173,16 @@ func TimeFlowMapToStore(taskid string) {
 		}
 	}
 	//fmt.Println("TimeFlow")
-	TimeflowStore(rubbishList, taskid)
+	TimeflowStore(rubbishList)
 }
 
-func TimeflowStore(rubbishList *list.List, taskid string) {
+func TimeflowStore(rubbishList *list.List) {
 	var TimeFlowList = list.New()
 	var PacketList = list.New()
 	for info := rubbishList.Front(); info != nil; info = info.Next() {
 		flowInfo := info.Value.(*FlowInfo)
 		fl := &TimeFlow.TimeFlow{
-			FlowId:          flowInfo.FlowID,
+			FlowId:          string(flowInfo.FlowID),
 			RanUeNgapId:     uint64(flowInfo.RAN_UE_NGAP_ID),
 			TotalNum:        uint32(flowInfo.TotalNum),
 			BeginTime:       flowInfo.BeginTime,
@@ -198,29 +197,22 @@ func TimeflowStore(rubbishList *list.List, taskid string) {
 		TimeFlowList.PushBack(fl)
 		for cur := flowInfo.PacketList.Front(); cur != nil; cur = cur.Next() {
 			parse := cur.Value.(*Packet)
-			flowue, id := Count_UE_ID(parse, taskid)
-			if !id {
-				flowue = '0'
-			}
 			packet := &PacketDB.Packet{
 				//PacketId: FnvHash([]byte(string(parse.ArriveTimeUs))),
-				NgapType:            parse.NgapType,
-				NgapProcedureCode:   parse.NgapProcedureCode,
-				RanUeNgapId:         parse.RAN_UE_NGAP_ID,
-				PacketLen:           parse.PacketLen,
-				ArriveTimeUs:        parse.ArriveTimeUs,
-				ArriveTime:          parse.ArriveTime,
-				TimeInterval:        parse.TimeInterval,
-				VerificationTag:     uint64(parse.VerificationTag),
-				SrcIP:               parse.SrcIP,
-				DstIP:               parse.DstIP,
-				DirSeq:              parse.DirSeq,
-				FlowUEID:            strconv.FormatUint(flowue, 10),
-				FlowTimeID:          parse.FlowID,
-				InitiatingMessage:   parse.InitiatingMessage,
-				SuccessfulOutcome:   parse.SuccessfulOutcome,
-				UnsuccessfulOutcome: parse.UnsuccessfulOutcome,
-				StatusPacket:        0,
+				NgapType:          parse.NgapType,
+				NgapProcedureCode: parse.NgapProcedureCode,
+				RanUeNgapId:       uint64(parse.RAN_UE_NGAP_ID),
+				PacketLen:         uint32(parse.PacketLen),
+				ArriveTimeUs:      uint64(parse.ArriveTimeUs),
+				ArriveTime:        parse.ArriveTime,
+				TimeInterval:      uint64(parse.TimeInterval),
+				VerificationTag:   uint64(parse.VerificationTag),
+				SrcIP:             parse.SrcIP,
+				DstIP:             parse.DstIP,
+				DirSeq:            uint16(parse.DirSeq),
+				FlowUEID:          string(parse.TimeID),
+				FlowTimeID:        string(parse.FlowID),
+				StatusPacket:      0,
 			}
 			PacketList.PushBack(packet)
 		}

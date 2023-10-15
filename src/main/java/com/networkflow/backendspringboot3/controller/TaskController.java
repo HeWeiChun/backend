@@ -30,7 +30,6 @@ public class TaskController {
     public R createTask(@RequestParam("taskId") String taskId,
                         @RequestParam("createTime") String createTime,
                         @RequestParam("mode") Integer mode,
-                        @RequestParam("model") Integer model,
                         @RequestParam(name = "port", required = false) Integer port,
                         @RequestParam("status") Integer status,
                         @RequestParam(name = "pcapFile", required = false) MultipartFile file) {
@@ -38,7 +37,6 @@ public class TaskController {
         taskRequest.setTaskId(taskId);
         taskRequest.setCreateTime(LocalDateTime.parse(createTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         taskRequest.setMode(mode);
-        taskRequest.setModel(model);
         taskRequest.setPort(port);
         taskRequest.setStatus(status);
         return taskService.createTask(taskRequest, file);
@@ -48,13 +46,11 @@ public class TaskController {
     @PostMapping("/updateTask")
     public R updateTask(@RequestParam("taskId") String taskId,
                         @RequestParam("mode") Integer mode,
-                        @RequestParam("model") Integer model,
                         @RequestParam(name = "port", required = false) Integer port,
                         @RequestParam(name = "pcapFile", required = false) MultipartFile file) {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setTaskId(taskId);
         taskRequest.setMode(mode);
-        taskRequest.setModel(model);
         taskRequest.setPort(port);
         return taskService.updateTask(taskRequest, file);
     }
@@ -66,6 +62,8 @@ public class TaskController {
                               @RequestParam("status") Integer status) {
         return taskService.updateTaskStatus(taskId, status);
     }
+
+
 
 
     @Operation(summary = "删除任务")

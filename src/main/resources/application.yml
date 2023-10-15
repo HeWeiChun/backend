@@ -29,5 +29,8 @@ springdoc:
 
 # 后端部署端口
 server:
-  port: 9300
+  port: 8100
 
+# 全局变量
+custom:
+  PYTHON_PATH: D:/Python/Python38/python.exe
