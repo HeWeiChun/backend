@@ -256,7 +256,7 @@ class DetectTask {
     public void executePythonScript(String scriptPath, Task currentTask) {
         log.info("执行Python, 线程名字为 = " + Thread.currentThread().getName());
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("D:\\ProgramData\\anaconda3\\python.exe", scriptPath, "--file_path", currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId(), "--model", String.valueOf(currentTask.getModel()));
+            ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\.conda\\envs\\xgboost39\\python.exe", scriptPath, "--taskid", currentTask.getTaskId(), "--model", String.valueOf(currentTask.getModel()));
             processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
             Process process = processBuilder.start();
 

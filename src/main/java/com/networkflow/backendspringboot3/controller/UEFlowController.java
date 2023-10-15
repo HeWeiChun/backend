@@ -25,10 +25,6 @@ public class UEFlowController {
     @Operation(summary = "获取所有UE聚合流信息")
     @GetMapping("/getUEFlowByTaskId")
     public R getUEFlowByTaskId(@RequestParam("taskId") String taskId) {
-        int index = taskId.indexOf('?');
-        if (index != -1) {
-            taskId = taskId.substring(0, index);
-        }
         return ueFlowService.getUEFlowByTaskId(taskId);
     }
 }
