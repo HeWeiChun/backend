@@ -5,73 +5,103 @@ import (
 	"github.com/free5gc/ngap/ngapType"
 )
 
-func InitialContextSetupFailure(InitialContextSetupFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
-	initialContextSetupFailure := InitialContextSetupFailure.InitialContextSetupFailure
-	if initialContextSetupFailure != nil {
-		for i := 0; i < len(initialContextSetupFailure.ProtocolIEs.List); i++ {
-			ie := initialContextSetupFailure.ProtocolIEs.List[i]
+// AMFConfigurationUpdateFailureDecoder ProcedureCode = 0
+func AMFConfigurationUpdateFailureDecoder() {
+}
+
+// HandoverPreparationFailureDecoder ProcedureCode = 12
+func HandoverPreparationFailureDecoder(HandoverPreparationFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
+	ies := HandoverPreparationFailure.HandoverPreparationFailure
+	if ies != nil {
+		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
+			ie := ies.ProtocolIEs.List[i]
 			switch ie.Id.Value {
 			case ngapType.ProtocolIEIDAMFUENGAPID:
-				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
 			case ngapType.ProtocolIEIDRANUENGAPID:
 				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
 				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func UEContextModificationFailure(UEContextModificationFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
-	uEContextModificationFailure := UEContextModificationFailure.UEContextModificationFailure
-	if uEContextModificationFailure != nil {
-		for i := 0; i < len(uEContextModificationFailure.ProtocolIEs.List); i++ {
-			ie := uEContextModificationFailure.ProtocolIEs.List[i]
+// HandoverFailureDecoder ProcedureCode = 13
+func HandoverFailureDecoder(HandoverFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
+	ies := HandoverFailure.HandoverFailure
+	if ies != nil {
+		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
+			ie := ies.ProtocolIEs.List[i]
 			switch ie.Id.Value {
 			case ngapType.ProtocolIEIDAMFUENGAPID:
-				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
 			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+				//RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func HandoverPreparationFailure(HandoverPreparationFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
-	handoverPreparationFailure := HandoverPreparationFailure.HandoverPreparationFailure
-	if handoverPreparationFailure != nil {
-		for i := 0; i < len(handoverPreparationFailure.ProtocolIEs.List); i++ {
-			ie := handoverPreparationFailure.ProtocolIEs.List[i]
+// InitialContextSetupFailureDecoder ProcedureCode = 14
+func InitialContextSetupFailureDecoder(InitialContextSetupFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
+	ies := InitialContextSetupFailure.InitialContextSetupFailure
+	if ies != nil {
+		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
+			ie := ies.ProtocolIEs.List[i]
 			switch ie.Id.Value {
 			case ngapType.ProtocolIEIDAMFUENGAPID:
-				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
 			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+				//RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}
 }
 
-func PathSwitchRequestFailure(PathSwitchRequestFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
-	pathSwitchRequestFailure := PathSwitchRequestFailure.PathSwitchRequestFailure
-	if pathSwitchRequestFailure != nil {
-		for i := 0; i < len(pathSwitchRequestFailure.ProtocolIEs.List); i++ {
-			ie := pathSwitchRequestFailure.ProtocolIEs.List[i]
+// NGSetupFailureDecoder ProcedureCode = 21
+func NGSetupFailureDecoder() {
+}
+
+// PathSwitchRequestFailureDecoder ProcedureCode = 25
+func PathSwitchRequestFailureDecoder(PathSwitchRequestFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
+	ies := PathSwitchRequestFailure.PathSwitchRequestFailure
+	if ies != nil {
+		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
+			ie := ies.ProtocolIEs.List[i]
 			switch ie.Id.Value {
 			case ngapType.ProtocolIEIDAMFUENGAPID:
-				//AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
-				//fmt.Println("[AMF-UE-NGAP-ID]:", AMF_UE_NGAP_ID)
+				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
 			case ngapType.ProtocolIEIDRANUENGAPID:
-				RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
-				//fmt.Println("[RAN-UE-NGAP-ID]:", RAN_UE_NGAP_ID)
-				packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+				//RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
+			}
+		}
+	}
+}
+
+// RANConfigurationUpdateFailureDecoder ProcedureCode = 35
+func RANConfigurationUpdateFailureDecoder() {
+}
+
+// UEContextModificationFailureDecoder ProcedureCode = 40
+func UEContextModificationFailureDecoder(UEContextModificationFailure ngapType.UnsuccessfulOutcomeValue, packet *flowMap.Packet) {
+	ies := UEContextModificationFailure.UEContextModificationFailure
+	if ies != nil {
+		for i := 0; i < len(ies.ProtocolIEs.List); i++ {
+			ie := ies.ProtocolIEs.List[i]
+			switch ie.Id.Value {
+			case ngapType.ProtocolIEIDAMFUENGAPID:
+				AMF_UE_NGAP_ID := ie.Value.AMFUENGAPID.Value
+				packet.AMF_UE_NGAP_ID = AMF_UE_NGAP_ID
+			case ngapType.ProtocolIEIDRANUENGAPID:
+				//RAN_UE_NGAP_ID := ie.Value.RANUENGAPID.Value
+				//packet.RAN_UE_NGAP_ID = RAN_UE_NGAP_ID
 			}
 		}
 	}

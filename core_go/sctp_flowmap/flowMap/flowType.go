@@ -39,22 +39,26 @@ type FlowInfo struct {
 	TaskID          string
 }
 type Packet struct {
-	FlowID            string
-	NgapType          string
-	NgapProcedureCode string
-	NgapRoute         string
-	RAN_UE_NGAP_ID    int64
-	ArriveTimeUs      int64
-	ArriveTime        time.Time
-	PacketLen         uint
-	TimeInterval      int64
-	NgapPayloadBytes  []byte
-	PayloadBytes      []byte
-	VerificationTag   uint32
-	SrcIP             string
-	DstIP             string
-	TimeID            string
-	DirSeq            int
+	FlowID              string
+	NgapType            string
+	NgapProcedureCode   string
+	NgapRoute           string
+	RAN_UE_NGAP_ID      int64
+	AMF_UE_NGAP_ID      int64
+	ArriveTimeUs        int64
+	ArriveTime          time.Time
+	PacketLen           uint32
+	TimeInterval        uint64
+	NgapPayloadBytes    []byte
+	PayloadBytes        []byte
+	VerificationTag     uint32
+	SrcIP               string
+	DstIP               string
+	TimeID              string
+	DirSeq              int8
+	InitiatingMessage   uint8
+	SuccessfulOutcome   uint8
+	UnsuccessfulOutcome uint8
 }
 
 func loadFlow(flowId string, flowTable []*Flow) (*FlowInfo, bool) {
@@ -81,7 +85,7 @@ func storeFlow(flowId string, flowInfo *FlowInfo, flowTable []*Flow) {
 		flowTable[numFlowId%TABLE_SIZE] = &Flow{info: flowInfo, next: nil}
 	} else {
 		next := cur
-		for next.next != cur {
+		for next.next != nil {
 			next = next.next
 		}
 		next.next = &Flow{info: flowInfo, next: nil}

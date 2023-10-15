@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
@@ -59,6 +60,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         queryWrapper.lambda().orderByDesc(Task::getCreateTime);
         return R.success(null, taskMapper.selectList(queryWrapper));
     }
+
     // 上传文件(返回任务id命名的名字)
     private String uploadFile(MultipartFile uploadFile, String taskId) {
         if (uploadFile == null) {
@@ -93,14 +95,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
     }
 
-    private void deleteCache(String taskId){
+    private void deleteCache(String taskId) {
         timeFlowMapper.delete(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getTaskID, taskId));
         List<UEFlow> ueFlowList = ueFlowMapper.selectList(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTaskID, taskId));
-        for (UEFlow ueFlow : ueFlowList) {
-            packetMapper.delete(new QueryWrapper<Packet>().lambda().eq(Packet::getFlowUEID, ueFlow.getFlowId()));
-        }
+        String[] flowIds = ueFlowList.stream()
+                .map(UEFlow::getFlowId)
+                .toArray(String[]::new);
+        if(flowIds.length>0)
+            packetMapper.delete(new QueryWrapper<Packet>().lambda().in(Packet::getFlowUEID, Arrays.asList(flowIds)));
         ueFlowMapper.delete(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTaskID, taskId));
     }
+
     @Override
     public R createTask(TaskRequest createTaskRequest, MultipartFile uploadFile) {
         Task task = new Task();
@@ -157,8 +162,22 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
     @Override
     public R deleteTask(String[] taskIds) {
-        for(String taskId:taskIds){
+        for (String taskId : taskIds) {
             deleteCache(taskId);
+            // 检查文件存储位置是否存在
+            String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go" +
+                    System.getProperty("file.separator") + "upload" + System.getProperty("file.separator") + taskId + ".pcapng";
+            File file = new File(filePath);
+            if (file.exists()) {
+                boolean deleted = file.delete();
+                if (deleted) {
+                    System.out.println("文件删除成功");
+                } else {
+                    System.out.println("文件删除失败");
+                }
+            } else {
+                System.out.println("文件不存在");
+            }
         }
         if (taskMapper.deleteBatchIds(Arrays.asList(taskIds)) > 0) {
             return R.success("删除成功");
@@ -179,6 +198,11 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             Task task = new Task();
             task.setTaskId(taskId);
             task.setStatus(1);
+            task.setStartTime(null);
+            task.setEndTime(null);
+            task.setAbnormal(null);
+            task.setNormal(null);
+            task.setTotal(null);
             // 清除缓存
             deleteCache(taskId);
 
@@ -227,11 +251,13 @@ class DetectTask {
     private UEFlowMapper ueFlowMapper;
     @Autowired
     private Executor checkTaskPool;
+
     @Async("checkTaskPool")
     public void executePythonScript(String scriptPath, Task currentTask) {
         log.info("执行Python, 线程名字为 = " + Thread.currentThread().getName());
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("D:\\ProgramData\\anaconda3\\python.exe", scriptPath, "--file_path", currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId());
+            ProcessBuilder processBuilder = new ProcessBuilder("D:\\ProgramData\\anaconda3\\python.exe", scriptPath, "--file_path", currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId(), "--model", String.valueOf(currentTask.getModel()));
+            processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
             Process process = processBuilder.start();
 
             // 处理脚本的输出
@@ -254,8 +280,7 @@ class DetectTask {
                 task.setNormal(Math.toIntExact(normalFlowAll));
                 task.setTotal(Math.toIntExact(abnormalFlowAll + normalFlowAll));
                 task.setEndTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            }
-            else {
+            } else {
                 task.setStatus(100);
                 task.setAbnormal(null);
                 task.setNormal(null);
@@ -292,6 +317,7 @@ class DetectTask {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\sdk\\go1.20.4\\bin\\go.exe", "run", "main.go", "--pcap_path", "..\\upload\\" + currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId());
             processBuilder.directory(new File("E:\\Code\\web\\backendspringboot3\\core_go\\sctp_flowmap"));
+            processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
             Process process = processBuilder.start();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));

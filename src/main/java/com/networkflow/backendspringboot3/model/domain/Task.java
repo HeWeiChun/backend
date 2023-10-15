@@ -18,8 +18,10 @@ public class Task {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    // mode: 0 为实时流量检测，1 为离线流量检测
+    // mode: 0为实时流量检测，1为离线流量检测
     private Integer mode;
+    // model: 0为XGBoost二分类模型, 1为XGBoost多分类模型, 2为Whisper二分类模型
+    private  Integer model;
     // port: 实时流量检测端口
     private Integer port;
     // PCAP包存储位置
