@@ -195,7 +195,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public R startTask(String[] taskIds) {
         int successCount = 0;
         for (String taskId : taskIds) {
-            taskManager.stopTask(taskId);
             Task task = new Task();
             task.setTaskId(taskId);
             task.setStatus(1);
