@@ -27,20 +27,19 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements TaskService {
     private static final Log log = LogFactory.get();
     private final DetectTask detectTask;
+    private final TaskManager taskManager;
     @Autowired
     private TaskMapper taskMapper;
     @Autowired
@@ -50,8 +49,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Autowired
     private PacketMapper packetMapper;
 
-    public TaskServiceImpl(DetectTask detectTask) {
+    public TaskServiceImpl(DetectTask detectTask, TaskManager taskManager) {
         this.detectTask = detectTask;
+        this.taskManager = taskManager;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         String trueFileName = taskId + "." + extension;
 
         // 检查文件存储位置是否存在
-        String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go" + System.getProperty("file.separator") + "upload";
+        String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core" + System.getProperty("file.separator") + "upload";
         File file = new File(filePath);
         if (!file.exists()) {
             if (!file.mkdir()) {
@@ -165,7 +165,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         for (String taskId : taskIds) {
             deleteCache(taskId);
             // 检查文件存储位置是否存在
-            String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go" +
+            String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
                     System.getProperty("file.separator") + "upload" + System.getProperty("file.separator") + taskId + ".pcapng";
             File file = new File(filePath);
             if (file.exists()) {
@@ -195,6 +195,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public R startTask(String[] taskIds) {
         int successCount = 0;
         for (String taskId : taskIds) {
+            taskManager.stopTask(taskId);
             Task task = new Task();
             task.setTaskId(taskId);
             task.setStatus(1);
@@ -205,7 +206,6 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             task.setTotal(null);
             // 清除缓存
             deleteCache(taskId);
-
             if (taskMapper.updateById(task) > 0) {
                 successCount++;
             }
@@ -219,10 +219,37 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         }
     }
 
+    @Override
+    public R stopTask(String[] taskIds) {
+        int successCount = 0;
+        for (String taskId : taskIds) {
+            taskManager.stopTask(taskId);
+            Task task = new Task();
+            task.setTaskId(taskId);
+            task.setStatus(200);
+            task.setEndTime(null);
+            task.setAbnormal(null);
+            task.setNormal(null);
+            task.setTotal(null);
+            // 清除缓存
+            deleteCache(taskId);
+            if (taskMapper.updateById(task) > 0) {
+                successCount++;
+            }
+        }
+        if (successCount == taskIds.length) {
+            return R.success("停止成功");
+        } else if (successCount > 0 && successCount < taskIds.length) {
+            return R.success("部分停止成功");
+        } else {
+            return R.error("停止失败");
+        }
+    }
+
     @Scheduled(cron = "0/5 * *  * * ? ")
     @Override
     public void checkStatus() {
-        log.info("轮询数据库, 线程名字为 = " + Thread.currentThread().getName());
+        // log.info("轮询数据库, 线程名字为 = " + Thread.currentThread().getName());
 
         QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Task::getStatus, 1);
@@ -234,9 +261,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
             task.setStartTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             taskMapper.updateById(task);
             if (taskMapper.updateById(task) > 0) {
-                detectTask.executeGoScript(task);
+                detectTask.executeScript(task);
             } else {
-                log.info("启动成功");
+                log.info("启动失败");
             }
         }
     }
@@ -245,124 +272,64 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 @Component
 class DetectTask {
     private static final Log log = LogFactory.get();
+    private final TaskManager taskManager;
     @Autowired
     private TaskMapper taskMapper;
-    @Autowired
-    private UEFlowMapper ueFlowMapper;
-    @Autowired
-    private Executor checkTaskPool;
 
-    @Async("checkTaskPool")
-    public void executePythonScript(String scriptPath, Task currentTask) {
-        log.info("执行Python, 线程名字为 = " + Thread.currentThread().getName());
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\.conda\\envs\\xgboost39\\python.exe", scriptPath, "--taskid", currentTask.getTaskId(), "--model", String.valueOf(currentTask.getModel()));
-            processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
-            Process process = processBuilder.start();
 
-            // 处理脚本的输出
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                log.info(line);
-            }
-            int exitCode = process.waitFor();
-            log.info("Python脚本执行完毕, 退出码：" + exitCode);
-
-            String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            Task task = new Task();
-            task.setTaskId(currentTask.getTaskId());
-            if (exitCode == 0) {
-                Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 200).eq(UEFlow::getTaskID, currentTask.getTaskId()));
-                Long normalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 100).eq(UEFlow::getTaskID, currentTask.getTaskId()));
-                task.setStatus(5);
-                task.setAbnormal(Math.toIntExact(abnormalFlowAll));
-                task.setNormal(Math.toIntExact(normalFlowAll));
-                task.setTotal(Math.toIntExact(abnormalFlowAll + normalFlowAll));
-                task.setEndTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            } else {
-                task.setStatus(100);
-                task.setAbnormal(null);
-                task.setNormal(null);
-                task.setTotal(null);
-                task.setEndTime(null);
-            }
-
-            if (taskMapper.updateById(task) > 0) {
-                if (exitCode == 0)
-                    log.info("检测完成");
-                else {
-                    log.info("检测失败");
-                }
-            } else {
-                log.info("检测失败");
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            Task task = new Task();
-            task.setTaskId(currentTask.getTaskId());
-            task.setStatus(100);
-            taskMapper.updateById(task);
-            log.info("检测失败");
-        } finally {
-            if (checkTaskPool instanceof ThreadPoolExecutor) {
-                ((ThreadPoolExecutor) checkTaskPool).remove(Thread.currentThread());
-            }
-        }
+    DetectTask(TaskManager taskManager) {
+        this.taskManager = taskManager;
     }
 
     @Async("checkTaskPool")
-    public void executeGoScript(Task currentTask) {
-        log.info("执行Go, 线程名字为 = " + Thread.currentThread().getName());
+    public void executeScript(Task currentTask) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\sdk\\go1.20.4\\bin\\go.exe", "run", "main.go", "--pcap_path", "..\\upload\\" + currentTask.getTruePcapPath(), "--taskid", currentTask.getTaskId());
-            processBuilder.directory(new File("E:\\Code\\web\\backendspringboot3\\core_go\\sctp_flowmap"));
+            String line;
+            BufferedReader reader;
+            // Go解析脚本
+            log.info("任务: " + currentTask.getTaskId() + " 执行检测, 线程名字为 = " + Thread.currentThread().getName());
+            ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\.conda\\envs\\xgboost39\\python.exe", System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
+                    System.getProperty("file.separator") + "main.py", "--taskid", currentTask.getTaskId(), "--model", String.valueOf(currentTask.getModel()));
             processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
             Process process = processBuilder.start();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
+            taskManager.addTaskProcess(currentTask.getTaskId(), process);
+            log.info("任务: " + currentTask.getTaskId() + " 检测脚本运行的PID为:" + process.pid());
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
             while ((line = reader.readLine()) != null) {
-                log.info(line);
+                log.info("任务: " + currentTask.getTaskId() + " " + line);
             }
-
             int exitCode = process.waitFor();
-            log.info("Go脚本执行完毕，退出码：" + exitCode);
-
-            Task task = new Task();
-            task.setTaskId(currentTask.getTaskId());
-            if (exitCode == 0)
-                task.setStatus(3);
-            else {
-                task.setStatus(100);
-                task.setAbnormal(null);
-                task.setNormal(null);
-                task.setTotal(null);
-                task.setEndTime(null);
-            }
-
-            if (taskMapper.updateById(task) > 0) {
-                if (exitCode == 0)
-                    log.info("解析完成");
-                else {
-                    log.info("解析失败");
-                    return;
-                }
-            } else {
-                log.info("解析失败");
-                return;
-            }
-
-            executePythonScript(System.getProperty("user.dir") + System.getProperty("file.separator") + "core_go\\python" +
-                    System.getProperty("file.separator") + "springboot.py", currentTask);
-
+            reader.close();
+            taskManager.stopTask(currentTask.getTaskId());
+            log.info("任务: " + currentTask.getTaskId() + " 检测成功, 已停止, 退出码为: " + exitCode);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             Task task = new Task();
             task.setTaskId(currentTask.getTaskId());
             task.setStatus(100);
             taskMapper.updateById(task);
-            log.info("检测失败");
+            taskManager.stopTask(currentTask.getTaskId());
+            log.info("任务: " + currentTask.getTaskId() + " 检测失败, 已停止");
         }
+    }
+}
+
+@Component
+class TaskManager {
+    private static final Log log = LogFactory.get();
+    private final Map<String, Process> taskProcesses = new ConcurrentHashMap<>();
+
+    public void addTaskProcess(String taskId, Process process) {
+        taskProcesses.put(taskId, process);
+        log.info("添加任务: "+ taskId + " Map中任务数: " + taskProcesses.size());
+    }
+
+    public void stopTask(String taskId) {
+        Process process = taskProcesses.get(taskId);
+        if (process != null) {
+            process.destroy();
+            taskProcesses.remove(taskId);
+        }
+        log.info("删除任务: "+ taskId + " Map中任务数: " + taskProcesses.size());
     }
 }

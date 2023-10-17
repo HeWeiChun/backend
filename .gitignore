@@ -32,7 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 /core/upload/
-/core_go/upload/
 /qodana.yaml
 
 ### DataSet ###

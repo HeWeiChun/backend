@@ -79,4 +79,10 @@ public class TaskController {
     public R startTask(@RequestParam("taskId") String[] taskId) {
         return taskService.startTask(taskId);
     }
+
+    @Operation(summary = "停止任务")
+    @PostMapping("/stopTask")
+    public R stopTask(@RequestParam("taskId") String[] taskId) {
+        return taskService.stopTask(taskId);
+    }
 }

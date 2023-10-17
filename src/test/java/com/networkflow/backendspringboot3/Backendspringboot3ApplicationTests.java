@@ -43,7 +43,7 @@ class Backendspringboot3ApplicationTests {
         log.info("执行Go, 线程名字为 = " + Thread.currentThread().getName());
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\sdk\\go1.20.4\\bin\\go.exe", "run", "main.go", "--pcap_path", "..\\upload\\" + "d383a92b-b6ea-4de1-9827-25214f1911dd.pcapng", "--taskid", "1111");
-            processBuilder.directory(new File("E:\\Code\\web\\backendspringboot3\\core_go\\sctp_flowmap"));
+            processBuilder.directory(new File("E:\\Code\\web\\backendspringboot3\\core\\Go"));
             processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
 
             Process process = processBuilder.start();

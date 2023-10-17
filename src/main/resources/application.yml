@@ -29,5 +29,4 @@ springdoc:
 
 # 后端部署端口
 server:
-  port: 9300
-
+  port: 9400

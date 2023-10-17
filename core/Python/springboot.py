@@ -10,7 +10,8 @@ from clickhouse_driver import Client
 
 import module.feature_extraction as fe
 import module.whisper_feature_extraction as whisper
-
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 client = Client(host='10.3.242.84', port=9000, user='default', password='password')
 
 
@@ -19,19 +20,18 @@ def detect_taskid(model_type, taskid):
     loss_p = 60000
 
     if model_type == '0':  # XGBoost(UEID聚合)
-        model_path = "core_go/Python/model/ueid_XGBoost1010.pkl"
-        print("Current model: XGBoost(UEID)")
+        model_path = "core/Python/model/ueid_XGBoost1010.pkl"
+        print("当前使用模型: XGBoost(UEID)")
     elif model_type == '1':  # XGBoost(Time聚合)
-        model_path = "core_go/Python/model/time_XGBoost1010.pkl"
-        print("Current model: XGBoost(Time)")
+        model_path = "core/Python/model/time_XGBoost1010.pkl"
+        print("当前使用模型: XGBoost(Time)")
     elif model_type == '2':  # Whipser模型(UEID聚合)
-        model_path = "core_go/Python/model/kmeans.pkl"
-        print("Current model: Whipser(UEID)")
+        model_path = "core/Python/model/kmeans.pkl"
+        print("当前使用模型: Whipser(UEID)")
     else:
-        model_path = "core_go/Python/model/ueid_XGBoost1010.pkl"
-        print("Invalid model type. Use default model: XGBoost(UEID)")
+        model_path = "core/Python/model/ueid_XGBoost1010.pkl"
+        print("不合法的模型类型. 使用默认模型: XGBoost(UEID)")
     model = joblib.load(model_path)
-
     random.seed(27)
     taskid_params = {'taskid': taskid}
     select = "SELECT status FROM SCTP.Task WHERE taskId = %(taskid)s"
@@ -45,9 +45,11 @@ def detect_taskid(model_type, taskid):
             # 更新任务状态为检测中
             tasking = "ALTER TABLE SCTP.Task UPDATE status = 4 WHERE taskId = %(taskid)s"
             client.execute(tasking, taskid_params)
-
             # 获取当前任务的所有未检测的流ID
-            flow = "SELECT FlowId FROM SCTP.UEFlow WHERE TaskID = %(taskid)s AND StatusFlow = 0"
+            if model_type == '1':
+                flow = "SELECT FlowId FROM SCTP.TimeFlow WHERE TaskID = %(taskid)s AND StatusFlow = 0"
+            else:
+                flow = "SELECT FlowId FROM SCTP.UEFlow WHERE TaskID = %(taskid)s AND StatusFlow = 0"
             flow_id = client.execute(flow, taskid_params)
 
         if model_type == '2':
@@ -60,7 +62,7 @@ def detect_taskid(model_type, taskid):
                 # 特征提取 & 模型检测
                 feature = whisper.extraction(result)
                 feature = np.array(feature)
-                f = open("core_go/Python/model/train_loss.data", 'rb')
+                f = open("core/Python/model/train_loss.data", 'rb')
                 train_loss = pickle.load(f)
                 centers = model.cluster_centers_
                 labels = model.predict(feature)
@@ -86,9 +88,15 @@ def detect_taskid(model_type, taskid):
                 client.execute(update_flow_query, result_params)
             break
         else:
+            if model_type == '1':
+                packet = "SELECT * FROM SCTP.Packet WHERE FlowTimeID = %(flowid)s ORDER BY ArriveTime"
+                update_flow_query = 'ALTER TABLE SCTP.TimeFlow UPDATE StatusFlow = %(ypredict)s WHERE FlowId = %(flowid)s'
+            else:
+                packet = "SELECT * FROM SCTP.Packet WHERE FlowUEID = %(flowid)s ORDER BY ArriveTime"
+                update_flow_query = 'ALTER TABLE SCTP.UEFlow UPDATE StatusFlow = %(ypredict)s WHERE FlowId = %(flowid)s'
+
             for id in flow_id:
                 # 获取当前流的所有包
-                packet = "SELECT * FROM SCTP.Packet WHERE FlowUEID = %(flowid)s ORDER BY ArriveTime"
                 packet_params = {'flowid': id}
                 result = client.execute(packet, packet_params)
 
@@ -111,7 +119,6 @@ def detect_taskid(model_type, taskid):
                 else:
                     predict_code = 200
                 # 更新检测结果
-                update_flow_query = 'ALTER TABLE SCTP.UEFlow UPDATE StatusFlow = %(ypredict)s WHERE FlowId = %(flowid)s'
                 result_params = {
                     'ypredict': predict_code,
                     'flowid': id
