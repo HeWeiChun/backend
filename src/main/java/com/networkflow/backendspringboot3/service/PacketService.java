@@ -7,5 +7,5 @@ import com.networkflow.backendspringboot3.model.domain.Packet;
 public interface PacketService extends IService<Packet> {
     R allPacket();
 
-    R getPacketByFlowId(String flowId);
+    R getPacketByFlowId(String flowId, Integer model);
 }

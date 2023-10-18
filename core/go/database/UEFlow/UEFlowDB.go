@@ -37,25 +37,8 @@ func InsertUeFlow(UeFlowList *list.List) {
 
 }
 
-/*
-func QueryFlows() {
-	var sqlStr string = queryPacketSQL
-
-	rows, err := database.Connect.Query(sqlStr)
-	checkErr(err)
-	for rows.Next() {
-		var packet Packet
-		checkErr(rows.Scan(
-			&packet.
-			))
-
-		fmt.Println(packet) //printf log
-	}
-}
-*/
-
 func creatUeFlowTable() {
-	var sqlStr string = creatUEFlowTableSQL
+	var sqlStr string = createUEFlowTableSQL
 
 	_, err := database.Connect.Exec(sqlStr)
 	checkErr(err)

@@ -9,4 +9,6 @@ public interface TimeFlowService extends IService<TimeFlow> {
     R allTimeFlow();
 
     R deleteTimeFlowsByTaskId(String taskId);
+
+    R getTimeFlowByTaskId(String taskId);
 }

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,5 +20,11 @@ public class TimeFlowController {
     @GetMapping("/getAllTimeFlow")
     public R getAllTask() {
         return timeFlowService.allTimeFlow();
+    }
+
+    @Operation(summary = "获取所有时间聚合流信息")
+    @GetMapping("/getTimeFlowByTaskId")
+    public R getUEFlowByTaskId(@RequestParam("taskId") String taskId) {
+        return timeFlowService.getTimeFlowByTaskId(taskId);
     }
 }

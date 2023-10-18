@@ -7,16 +7,16 @@ import java.time.LocalDateTime;
 
 @Data
 public class UEFlowRequest {
-    private String FlowId;
-    private Integer RanUeNgapId;
-    private Integer TotalNum;
-    private Integer StartSecond;
-    private Integer EndSecond;
-    private LocalDateTime BeginTime;
-    private LocalDateTime LatestTime;
-    private Integer VerificationTag;
-    private String SrcIP;
-    private String DstIP;
-    private Integer StatusFlow;
-    private String TaskID;
+    private String flow_id;
+    private Integer ran_ue_ngap_id;
+    private Integer total_num;
+    private Integer start_second;
+    private Integer end_second;
+    private LocalDateTime begin_time;
+    private LocalDateTime latest_time;
+    private Integer verification_tag;
+    private String src_ip;
+    private String dst_ip;
+    private Integer status_flow;
+    private String task_id;
 }

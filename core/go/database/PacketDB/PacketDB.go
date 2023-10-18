@@ -49,26 +49,8 @@ func InsertPacket(PacketList *list.List) {
 	checkErr(tx.Commit())
 }
 
-/*
-func QueryFlows() {
-	var sqlStr string = queryPacketSQL
-
-	rows, err := database.Connect.Query(sqlStr)
-	checkErr(err)
-	for rows.Next() {
-		var packet Packet
-		checkErr(rows.Scan(
-			&packet.
-			))
-
-		fmt.Println(packet) //printf log
-	}
-}
-
-*/
-
 func creatPacketTable() {
-	var sqlStr string = creatPacketTableSQL
+	var sqlStr string = createPacketTableSQL
 
 	_, err := database.Connect.Exec(sqlStr)
 	checkErr(err)

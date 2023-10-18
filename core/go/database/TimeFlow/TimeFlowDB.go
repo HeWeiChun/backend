@@ -37,26 +37,8 @@ func InsertTimeFlow(TimeFlowList *list.List) {
 	checkErr(tx.Commit())
 }
 
-/*
-func QueryFlows() {
-	var sqlStr string = queryPacketSQL
-
-	rows, err := database.Connect.Query(sqlStr)
-	checkErr(err)
-	for rows.Next() {
-		var packet Packet
-		checkErr(rows.Scan(
-			&packet.
-			))
-
-		fmt.Println(packet) //printf log
-	}
-}
-
-*/
-
 func creatTimeFlowTable() {
-	var sqlStr string = creatTimeFlowTableSQL
+	var sqlStr string = createTimeFlowTableSQL
 
 	_, err := database.Connect.Exec(sqlStr)
 	checkErr(err)

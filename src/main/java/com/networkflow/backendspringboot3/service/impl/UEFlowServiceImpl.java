@@ -17,21 +17,21 @@ public class UEFlowServiceImpl extends ServiceImpl<UEFlowMapper, UEFlow> impleme
     @Override
     public R allUEFlow() {
         QueryWrapper<UEFlow> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().orderByAsc(UEFlow::getBeginTime);
+        queryWrapper.lambda().orderByAsc(UEFlow::getBegin_time);
         return R.success(null, ueFlowMapper.selectList(queryWrapper));
     }
 
     @Override
     public R deleteUEFlowsByTaskId(String taskId) {
         QueryWrapper<UEFlow> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UEFlow::getTaskID, taskId);
+        queryWrapper.lambda().eq(UEFlow::getTask_id, taskId);
         return R.success(null, ueFlowMapper.delete(queryWrapper));
     }
 
     @Override
     public R getUEFlowByTaskId(String taskId) {
         QueryWrapper<UEFlow> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UEFlow::getTaskID, taskId).orderByAsc(UEFlow::getBeginTime);
+        queryWrapper.lambda().eq(UEFlow::getTask_id, taskId).orderByAsc(UEFlow::getBegin_time);
         return R.success(null, ueFlowMapper.selectList(queryWrapper));
     }
 }

@@ -25,11 +25,8 @@ public class PacketController {
 
     @Operation(summary = "获取所有UE聚合流信息")
     @GetMapping("/getPacketByFlowId")
-    public R getPacketByFlowId(@RequestParam("flowId") String flowId) {
-        int index = flowId.indexOf('?');
-        if (index != -1) {
-            flowId = flowId.substring(0, index);
-        }
-        return packetService.getPacketByFlowId(flowId);
+    public R getPacketByFlowId(@RequestParam("flowId") String flowId,
+                               @RequestParam("model") Integer model) {
+        return packetService.getPacketByFlowId(flowId, model);
     }
 }

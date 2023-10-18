@@ -25,43 +25,8 @@ func main() {
 		return
 	}
 	decoder.Decode(*pcapPath, *taskID)
-	//flowMap.ItFlowMap(flowMap.FlowTable_Time)
-	/*
-		List := flowMap.UEFlowMapToStore()
 
-
-		TP := rulebased.ListGenerate(List)
-
-		for tp:=TP.Front() ;tp!=nil;tp = tp.Next() {
-			fmt.Print("UEId:")
-			flowtp := tp.Value.(*rulebased.TypeList)
-			fmt.Println(flowtp.Flow.RAN_UE_NGAP_ID)
-
-			for ngap_list:=flowtp.NGAP_List.Front();ngap_list!=nil;ngap_list=ngap_list.Next(){
-				fmt.Print(ngap_list.Value.(*rulebased.NGAPProcedureInfo).Procedure)
-				fmt.Print("  status:")
-				fmt.Println(ngap_list.Value.(*rulebased.NGAPProcedureInfo).Status)
-			}
-
-			packet_list := flowtp.Flow.PacketList
-			for cur:=packet_list.Front();cur!=nil;cur=cur.Next(){
-				packet :=cur.Value.(*flowMap.Packet)
-				fmt.Print(packet.NgapProcedureCode)
-				fmt.Print("  ")
-				fmt.Println(packet.NgapRoute)
-			}
-
-
-
-		}
-
-	*/
-
-	//flowMap.ItFlowMap(flowMap.FlowTable_UE)
-	//flowMap.ItFlowMap(flowMap.FlowTable_Time)
 	fmt.Println("等待存储到数据库")
 	flowMap.UEFlowMapToStore()
 	flowMap.TimeFlowMapToStore(*taskID)
-	//flowMap.ItFlowMap(flowMap.FlowTable_Time)
-
 }

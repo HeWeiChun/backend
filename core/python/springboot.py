@@ -34,7 +34,7 @@ def detect_taskid(model_type, taskid):
     model = joblib.load(model_path)
     random.seed(27)
     taskid_params = {'taskid': taskid}
-    select = "SELECT status FROM SCTP.Task WHERE taskId = %(taskid)s"
+    select = "SELECT status FROM sctp.task WHERE task_id = %(taskid)s"
 
     while True:
         # 获取当前任务状态: 0-未开始 1-待解析 2-解析中 3-待检测 4-检测中 5-检测完成
@@ -43,20 +43,20 @@ def detect_taskid(model_type, taskid):
             time.sleep(1)
         elif task_status == 3:
             # 更新任务状态为检测中
-            tasking = "ALTER TABLE SCTP.Task UPDATE status = 4 WHERE taskId = %(taskid)s"
+            tasking = "ALTER TABLE sctp.task UPDATE status = 4 WHERE task_id = %(taskid)s"
             client.execute(tasking, taskid_params)
             # 获取当前任务的所有未检测的流ID
             if model_type == '1':
-                flow = "SELECT FlowId FROM SCTP.TimeFlow WHERE TaskID = %(taskid)s AND StatusFlow = 0"
+                flow = "SELECT flow_id FROM sctp.time_flow WHERE task_id = %(taskid)s AND status_flow = 0"
             else:
-                flow = "SELECT FlowId FROM SCTP.UEFlow WHERE TaskID = %(taskid)s AND StatusFlow = 0"
+                flow = "SELECT flow_id FROM sctp.ue_flow WHERE task_id = %(taskid)s AND status_flow = 0"
             flow_id = client.execute(flow, taskid_params)
 
         if model_type == '2':
             for id in flow_id:
                 # 获取当前流的所有包
-                packet = ("SELECT PacketLen,TimeInterval,NgapType FROM SCTP.Packet "
-                          "WHERE FlowUEID = %(flowid)s ORDER BY ArriveTime")
+                packet = ("SELECT packet_len,time_interval,ngap_type FROM sctp.packet "
+                          "WHERE flow_ue_id = %(flowid)s ORDER BY arrive_time")
                 packet_params = {'flowid': id}
                 result = client.execute(packet, packet_params)
                 # 特征提取 & 模型检测
@@ -80,7 +80,7 @@ def detect_taskid(model_type, taskid):
                         # NORMAL
                         prediction.append(1)
                 # 更新检测结果
-                update_flow_query = 'ALTER TABLE SCTP.UEFlow UPDATE StatusFlow = %(ypredict)s WHERE FlowId = %(flowid)s'
+                update_flow_query = 'ALTER TABLE sctp.ue_flow UPDATE status_flow = %(ypredict)s WHERE flow_id = %(flowid)s'
                 result_params = {
                     'ypredict': predict_code,
                     'flowid': id
@@ -89,11 +89,11 @@ def detect_taskid(model_type, taskid):
             break
         else:
             if model_type == '1':
-                packet = "SELECT * FROM SCTP.Packet WHERE FlowTimeID = %(flowid)s ORDER BY ArriveTime"
-                update_flow_query = 'ALTER TABLE SCTP.TimeFlow UPDATE StatusFlow = %(ypredict)s WHERE FlowId = %(flowid)s'
+                packet = "SELECT * FROM sctp.packet WHERE flow_time_id = %(flowid)s ORDER BY arrive_time"
+                update_flow_query = 'ALTER TABLE sctp.time_flow UPDATE status_flow = %(ypredict)s WHERE flow_id = %(flowid)s'
             else:
-                packet = "SELECT * FROM SCTP.Packet WHERE FlowUEID = %(flowid)s ORDER BY ArriveTime"
-                update_flow_query = 'ALTER TABLE SCTP.UEFlow UPDATE StatusFlow = %(ypredict)s WHERE FlowId = %(flowid)s'
+                packet = "SELECT * FROM sctp.packet WHERE flow_ue_id = %(flowid)s ORDER BY arrive_time"
+                update_flow_query = 'ALTER TABLE sctp.ue_flow UPDATE status_flow = %(ypredict)s WHERE flow_id = %(flowid)s'
 
             for id in flow_id:
                 # 获取当前流的所有包

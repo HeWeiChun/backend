@@ -30,7 +30,7 @@ func init() {
 	}
 
 	// 创建 SCTP 数据库
-	_, err = Connect.Exec("CREATE DATABASE IF NOT EXISTS SCTP_1;")
+	_, err = Connect.Exec("CREATE DATABASE IF NOT EXISTS sctp;")
 	CheckErr(err)
 }
 

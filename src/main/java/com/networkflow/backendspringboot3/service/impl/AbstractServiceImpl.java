@@ -55,12 +55,12 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
         Map<String, Long> n2Normal = new HashMap<>();
         List<Task> completedTasks = taskMapper.selectList(new QueryWrapper<Task>().lambda().eq(Task::getStatus, 5));
         for (Task task : completedTasks) {
-            LocalDateTime createTime = task.getCreateTime();
+            LocalDateTime createTime = task.getCreate_time();
             String day = createTime.toLocalDate().toString();
-            String taskId = task.getTaskId();
+            String taskId = task.getTask_id();
 
-            Long abnormalFlow = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 200).eq(UEFlow::getTaskID, taskId));
-            Long normalFlow = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 100).eq(UEFlow::getTaskID, taskId));
+            Long abnormalFlow = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 200).eq(UEFlow::getTask_id, taskId));
+            Long normalFlow = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 100).eq(UEFlow::getTask_id, taskId));
 
             completedTask.put(day, completedTask.getOrDefault(day, 0) + 1);
             n2Abnormal.put(day, n2Abnormal.getOrDefault(day, 0L) + abnormalFlow);
@@ -107,8 +107,8 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
 
 
         // 所有流
-        Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 200));
-        Long normalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 100));
+        Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 200));
+        Long normalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 100));
         Map<String, Long> abnormalFlowBinary = new HashMap<>();
         abnormalFlowBinary.put("normal", normalFlowAll);
         abnormalFlowBinary.put("abnormal", abnormalFlowAll);
@@ -117,19 +117,35 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
         abnormalFlowMulti.put("normal", normalFlowAll);
         abnormalFlowMulti.put("abnormal", abnormalFlowAll);
 
-        // 异常事件(返回UEFlow和TimeFlow中所有status为1的流，并以时间倒序排序)
+        // 异常事件(返回UEFlow和TimeFlow中所有status为200的流，并以时间倒序排序)
         QueryWrapper<UEFlow> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UEFlow::getStatusFlow, 200).orderByDesc(UEFlow::getLatestTime);
-        List<UEFlow> abnormalEvent = ueFlowMapper.selectList(queryWrapper);
+        queryWrapper.lambda().eq(UEFlow::getStatus_flow, 200).orderByDesc(UEFlow::getLatest_time);
+        List<UEFlow> ueFlowAbnormalEvent = ueFlowMapper.selectList(queryWrapper);
+
+        QueryWrapper<TimeFlow> timeFlowQueryWrapper = new QueryWrapper<>();
+        timeFlowQueryWrapper.lambda().eq(TimeFlow::getStatus_flow, 200).orderByDesc(TimeFlow::getLatest_time);
+        List<TimeFlow> timeFlowAbnormalEvent = timeFlowMapper.selectList(timeFlowQueryWrapper);
+
+        // 将两个表的查询结果合并
+        List<Object> abnormalEvent = new ArrayList<>();
+        abnormalEvent.addAll(ueFlowAbnormalEvent);
+        abnormalEvent.addAll(timeFlowAbnormalEvent);
+
+        // 按时间倒序排序
+        abnormalEvent.sort((o1, o2) -> {
+            LocalDateTime latestTime1 = o1 instanceof UEFlow ? ((UEFlow) o1).getLatest_time() : ((TimeFlow) o1).getLatest_time();
+            LocalDateTime latestTime2 = o2 instanceof UEFlow ? ((UEFlow) o2).getLatest_time() : ((TimeFlow) o2).getLatest_time();
+            return latestTime2.compareTo(latestTime1);
+        });
 
 
         // 活跃流数——已检测流(统计UEFlow和TimeFlow中共有多少status为0的流)
-        Long activeDetectedFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().in("StatusFlow", 100, 200))
-                + timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().in("StatusFlow", 100, 200));
+        Long activeDetectedFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().in(UEFlow::getStatus_flow, 100, 200))
+                + timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().lambda().in(TimeFlow::getStatus_flow, 100, 200));
 
         // 活跃流数——待检测流(统计UEFlow和TimeFlow中共有多少status为1的流)
-        Long activePendingFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().eq("StatusFlow", 0))
-                + timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().eq("StatusFlow", 0));
+        Long activePendingFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 0))
+                + timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getStatus_flow, 0));
 
 
         Map<String, Object> introduce = new HashMap<>();
@@ -155,8 +171,10 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
 
         // 介绍栏
         // 所有流
-        Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 200).eq(UEFlow::getTaskID, taskId));
-        Long normalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 100).eq(UEFlow::getTaskID, taskId));
+        Long abnormalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 200).eq(UEFlow::getTask_id, taskId)) +
+                timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getStatus_flow, 200).eq(TimeFlow::getTask_id, taskId));
+        Long normalFlowAll = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 100).eq(UEFlow::getTask_id, taskId)) +
+                timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getStatus_flow, 100).eq(TimeFlow::getTask_id, taskId));
         Map<String, Long> abnormalFlowBinary = new HashMap<>();
         abnormalFlowBinary.put("normal", normalFlowAll);
         abnormalFlowBinary.put("abnormal", abnormalFlowAll);
@@ -165,15 +183,21 @@ public class AbstractServiceImpl extends ServiceImpl<AbstractMapper, Abstract> i
         abnormalFlowMulti.put("normal", normalFlowAll);
         abnormalFlowMulti.put("abnormal", abnormalFlowAll);
 
+        int model = taskMapper.selectById(taskId).getModel();
 
-
-        // 已检测流
-        Long activeDetectedFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().in(UEFlow::getStatusFlow, 100, 200).eq(UEFlow::getTaskID, taskId));
-
-        // 待检测流
-        Long activePendingFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatusFlow, 0).eq(UEFlow::getTaskID, taskId));
-
-
+        Long activeDetectedFlows, activePendingFlows;
+        if(model == 1) {
+            // 已检测流
+            activeDetectedFlows = timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().lambda().in(TimeFlow::getStatus_flow, 100, 200).eq(TimeFlow::getTask_id, taskId));
+            // 待检测流
+            activePendingFlows = timeFlowMapper.selectCount(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getStatus_flow, 0).eq(TimeFlow::getTask_id, taskId));
+        }
+        else {
+            // 已检测流
+            activeDetectedFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().in(UEFlow::getStatus_flow, 100, 200).eq(UEFlow::getTask_id, taskId));
+            // 待检测流
+            activePendingFlows = ueFlowMapper.selectCount(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getStatus_flow, 0).eq(UEFlow::getTask_id, taskId));
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("activeDetectedFlows", activeDetectedFlows);

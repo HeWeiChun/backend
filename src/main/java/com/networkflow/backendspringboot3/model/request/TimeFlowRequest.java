@@ -6,14 +6,14 @@ import java.time.LocalDateTime;
 
 @Data
 public class TimeFlowRequest {
-    private String FlowId;
-    private Integer RanUeNgapId;
-    private Integer TotalNum;
-    private LocalDateTime BeginTime;
-    private LocalDateTime LatestTime;
-    private Integer VerificationTag;
-    private String SrcIP;
-    private String DstIP;
-    private Integer StatusFlow;
-    private String TaskID;
+    private String flowId;
+    private Integer ran_ue_ngap_id;
+    private Integer total_num;
+    private LocalDateTime begin_time;
+    private LocalDateTime latest_time;
+    private Integer verification_tag;
+    private String src_ip;
+    private String dst_ip;
+    private Integer status_flow;
+    private String task_id;
 }

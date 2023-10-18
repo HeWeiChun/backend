@@ -26,61 +26,60 @@ type Packet struct {
 	StatusPacket        uint16
 }
 
-var PacketTable = "SCTP.Packet"
+var PacketTable = "sctp.packet"
 
 var insertPacketSQL = `
-		INSERT INTO ` + PacketTable +
+INSERT INTO ` + PacketTable +
 	`
-		(NgapType, NgapProcedureCode, RanUeNgapId, PacketLen, 
-		ArriveTimeUs, ArriveTime, TimeInterval, VerificationTag, 
-		SrcIP, DstIP, DirSeq, FlowUEID, FlowTimeID, 
-		InitiatingMessage, SuccessfulOutcome, UnsuccessfulOutcome,StatusPacket) 
-		values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	(ngap_type, ngap_procedure_code, ran_ue_ngap_id, packet_len, 
+	arrive_time_us, arrive_time, time_interval, verification_tag, 
+	src_ip, dst_ip, dir_seq, flow_ue_id, flow_time_id, 
+	initiating_message, successful_outcome, unsuccessful_outcome, status_packet) 
+	values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 var queryPacketSQL = `
-		SELECT NgapType, NgapProcedureCode, RanUeNgapId, PacketLen, 
-		ArriveTimeUs, ArriveTime, TimeInterval,VerificationTag, 
-		SrcIP, DstIP, DirSeq, FlowUEID, FlowTimeID,
-		InitiatingMessage, SuccessfulOutcome, UnsuccessfulOutcome, StatusPacket
-		FROM ` + PacketTable
+	SELECT ngap_type, ngap_procedure_code, ran_ue_ngap_id, packet_len, 
+	arrive_time_us, arrive_time, time_interval, verification_tag, 
+	src_ip, dst_ip, dir_seq, flow_ue_id, flow_time_id,
+	initiating_message, successful_outcome, unsuccessful_outcome, status_packet
+	FROM ` + PacketTable
 
-var creatPacketTableSQL = `
+var createPacketTableSQL = `
 	CREATE TABLE IF NOT EXISTS ` + PacketTable + ` (
-	    NgapType String ,
-	    NgapProcedureCode String ,
-	    RanUeNgapId Int64 ,
-    	PacketLen UInt32 ,
-    	ArriveTimeUs Int64 ,
-        ArriveTime DateTime64(6) ,
-    	TimeInterval UInt64 ,
-    	VerificationTag UInt64 ,
-	    SrcIP String ,
-	    DstIP String ,
-	    DirSeq Int8 ,
-	    FlowUEID String ,
-     	FlowTimeID String ,
-		InitiatingMessage UInt8 ,
-		SuccessfulOutcome UInt8 ,
-		UnsuccessfulOutcome UInt8 ,
-	    StatusPacket UInt16 ,	
+	    ngap_type String ,
+	    ngap_procedure_code String ,
+	    ran_ue_ngap_id Int64 ,
+    	packet_len UInt32 ,
+    	arrive_time_us Int64 ,
+        arrive_time DateTime64(6) ,
+    	time_interval UInt64 ,
+    	verification_tag UInt64 ,
+	    src_ip String ,
+	    dst_ip String ,
+	    dir_seq Int8 ,
+	    flow_ue_id String ,
+     	flow_time_id String ,
+		initiating_message UInt8 ,
+		successful_outcome UInt8 ,
+		unsuccessful_outcome UInt8 ,
+	    status_packet UInt16 ,	
 
-
-		INDEX i_RanUeNgapId (RanUeNgapId) TYPE minmax GRANULARITY 4, 
-		INDEX i_PacketLen (PacketLen) TYPE minmax GRANULARITY 4, 
-		INDEX i_ArriveTimeUs (ArriveTimeUs) TYPE minmax GRANULARITY 4, 
-		INDEX i_ArriveTime (ArriveTime) TYPE minmax GRANULARITY 4, 
-		INDEX i_TimeInterval (TimeInterval) TYPE minmax GRANULARITY 4, 
-		INDEX i_SrcIP (SrcIP) TYPE minmax GRANULARITY 4, 
-		INDEX i_DstIP (DstIP) TYPE minmax GRANULARITY 4, 
-		INDEX i_DirSeq (DirSeq) TYPE minmax GRANULARITY 4, 
-		INDEX i_FlowUEID (FlowUEID) TYPE minmax GRANULARITY 4, 
-		INDEX i_FlowTimeID (FlowTimeID) TYPE minmax GRANULARITY 4
-
-		)  
-		ENGINE = MergeTree()
-        PARTITION BY toYYYYMMDD(ArriveTime)
-		ORDER BY (ArriveTime)`
+		INDEX i_ran_ue_ngap_id (ran_ue_ngap_id) TYPE minmax GRANULARITY 4, 
+		INDEX i_packet_len (packet_len) TYPE minmax GRANULARITY 4, 
+		INDEX i_arrive_time_us (arrive_time_us) TYPE minmax GRANULARITY 4, 
+		INDEX i_arrive_time (arrive_time) TYPE minmax GRANULARITY 4, 
+		INDEX i_time_interval (time_interval) TYPE minmax GRANULARITY 4, 
+		INDEX i_src_ip (src_ip) TYPE minmax GRANULARITY 4, 
+		INDEX i_dst_ip (dst_ip) TYPE minmax GRANULARITY 4, 
+		INDEX i_dir_seq (dir_seq) TYPE minmax GRANULARITY 4, 
+		INDEX i_flow_ue_id (flow_ue_id) TYPE minmax GRANULARITY 4, 
+		INDEX i_flow_time_id (flow_time_id) TYPE minmax GRANULARITY 4
+	)  
+	ENGINE = MergeTree()
+	PARTITION BY toYYYYMMDD(arrive_time)
+	ORDER BY (arrive_time)
+`
 
 var dropPacketTableSQL = "DROP TABLE " + PacketTable
 
@@ -90,23 +89,23 @@ func (fl *Packet) initFlowLog() {
 
 func (fl Packet) String() string {
 	return fmt.Sprintf(`
-            NgapType: %s,
-            NgapProcedureCode: %s,
-		    RanUeNgapId: %d,
-            PacketLen: %u,
-            ArriveTimeUs: %d,
-            ArriveTime: %s,
-            TimeInterval: %u,
-		    VerificationTag: %u,
-		    SrcIP: %s, 
-		    DstIP: %s,
-            DirSeq: %d,
-            FlowUEID: %s,
-            FlowTimeID: %s,
-			InitiatingMessage: %d,
-			SuccessfulOutcome: %d,
-			UnsuccessfulOutcome: %d,
-		    StatusFlow: %u,
+		ngap_type: %s,
+		ngap_procedure_code: %s,
+		ran_ue_ngap_id: %d,
+		packet_len: %u,
+		arrive_time_us: %d,
+		arrive_time: %s,
+		time_interval: %u,
+		verification_tag: %u,
+		src_ip: %s,
+		dst_ip: %s,
+		dir_seq: %d,
+		flow_ue_id: %s,
+		flow_time_id: %s,
+		initiating_message: %d,
+		successful_outcome: %d,
+		unsuccessful_outcome: %d,
+		status_packet: %u,
 		`, fl.NgapType, fl.NgapProcedureCode, fl.RanUeNgapId, fl.PacketLen, fl.ArriveTimeUs, fl.ArriveTime,
 		fl.TimeInterval, fl.VerificationTag, fl.SrcIP, fl.DstIP, fl.DirSeq, fl.FlowUEID, fl.FlowTimeID,
 		fl.InitiatingMessage, fl.SuccessfulOutcome, fl.UnsuccessfulOutcome, fl.StatusPacket)

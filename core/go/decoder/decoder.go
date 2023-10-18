@@ -31,10 +31,7 @@ func Decode(file string, task string) {
 
 	num := 0
 	for packet := range packetSource.Packets() {
-		//fmt.Println(packet)
 		applicationLayer := packet.ApplicationLayer()
-		//layertype := applicationLayer.LayerType()
-		//fmt.Println(layertype)
 
 		if applicationLayer != nil {
 			payload := applicationLayer.Payload()
@@ -60,11 +57,8 @@ func Decode(file string, task string) {
 				if num == 1 {
 					TimeFirst = Packet_UE.ArriveTimeUs
 				}
-				//fmt.Println("*********************************************************************************************")
-				//fmt.Println("This package is the ", num, "th package in the whole file.")
 
 				NGAP.RouteNGAP(DecResult, Packet_UE)
-				//fmt.Println("The NGAP type is ", Packet_UE.NgapType)
 				sctpLayer := packet.Layer(layers.LayerTypeSCTP)
 				if sctpLayer != nil {
 					if sctp, ok := sctpLayer.(*layers.SCTP); ok {
@@ -103,19 +97,19 @@ func Decode(file string, task string) {
 					UnsuccessfulOutcome: Packet_UE.UnsuccessfulOutcome,
 				}
 
-				flowUEID, ID := flowMap.Count_UE_ID(Packet_UE, task)
+				flowUEID, UEID := flowMap.Count_UE_ID(Packet_UE, task)
 				strFlowUEID := strconv.FormatUint(flowUEID, 10)
 				Packet_UE.FlowID = strFlowUEID
-				if ID {
-
+				if UEID {
 					flowMap.Put(Packet_UE, flowMap.FlowTable_UE, strFlowUEID, task)
 				}
 
-				flowTimeID, _ := flowMap.Count_Time_ID(Packet_Time, TimeFirst)
+				flowTimeID, TimeID := flowMap.Count_Time_ID(Packet_Time, TimeFirst, task)
 				strFlowTimeID := strconv.FormatUint(flowTimeID, 10)
-				Packet_Time.TimeID = strFlowUEID
 				Packet_Time.FlowID = strFlowTimeID
-				flowMap.Put(Packet_Time, flowMap.FlowTable_Time, strFlowTimeID, task)
+				if TimeID {
+					flowMap.Put(Packet_Time, flowMap.FlowTable_Time, strFlowTimeID, task)
+				}
 			}
 		}
 	}

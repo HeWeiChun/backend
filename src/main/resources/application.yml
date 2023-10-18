@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:clickhouse:http://10.3.242.84:8123/SCTP
+    url: jdbc:clickhouse:http://10.3.242.84:8123/sctp
     username: default
     password: password
     driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
@@ -14,6 +14,7 @@ mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   configuration:
     mapUnderscoreToCamelCase: false
+
 
 springdoc:
   swagger-ui:

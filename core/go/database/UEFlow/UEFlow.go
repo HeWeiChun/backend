@@ -19,49 +19,50 @@ type UeFlow struct {
 	TaskID     string
 }
 
-var UeFlowTable = "SCTP.UEFlow"
+var UeFlowTable = "sctp.ue_flow"
 var insertUeFlowSQL = `
-		INSERT INTO ` + UeFlowTable +
+	INSERT INTO ` + UeFlowTable +
 	`
-		(FlowId, RanUeNgapId, TotalNum, 
-		BeginTime, LatestTime, VerificationTag, SrcIP, 
-		DstIP, StatusFlow, TaskID) 
-		values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`
+	(flow_id, ran_ue_ngap_id, total_num, 
+	begin_time, latest_time, verification_tag, src_ip, 
+	dst_ip, status_flow, task_id) 
+	values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`
 
 var queryUEFlowLogSQL = `
-		SELECT FlowId, RanUeNgapId, TotalNum, 
-		BeginTime, LatestTime, VerificationTag, SrcIP, 
-		DstIP, StatusFlow, TaskID 
-		FROM ` + UeFlowTable
+	SELECT flow_id, ran_ue_ngap_id, total_num, 
+	begin_time, latest_time, verification_tag, src_ip, 
+	dst_ip, status_flow, task_id 
+	FROM ` + UeFlowTable
 
-var creatUEFlowTableSQL = `
-	CREATE TABLE IF NOT EXISTS ` + UeFlowTable + ` (
-		FlowId String,
-		RanUeNgapId UInt64,
-        TotalNum UInt32,
-        StartSecond UInt64,
-        EndSecond UInt64,
-		BeginTime DateTime64(6), 
-		LatestTime DateTime64(6), 
-		VerificationTag UInt64,
-		SrcIP String, 
-		DstIP String,
-		StatusFlow UInt16, 
-        TaskID String,
-		
-		INDEX i_FlowId (FlowId) TYPE minmax GRANULARITY 4, 
-		INDEX i_RanUeNgapId (RanUeNgapId) TYPE minmax GRANULARITY 4, 
-		INDEX i_TotalNum (TotalNum) TYPE minmax GRANULARITY 4, 
-		INDEX i_BeginTime (BeginTime) TYPE minmax GRANULARITY 4, 
-		INDEX i_SrcIP (SrcIP) TYPE minmax GRANULARITY 4, 
-		INDEX i_DstIP (DstIP) TYPE minmax GRANULARITY 4,
-        INDEX i_TaskID (TaskID) TYPE minmax GRANULARITY 4
-		
-		)  
-		ENGINE = MergeTree() 
-		PARTITION BY toYYYYMMDD(BeginTime)
-		ORDER BY (BeginTime)`
+var createUEFlowTableSQL = `
+CREATE TABLE IF NOT EXISTS ` + UeFlowTable + ` (
+	flow_id String,
+	ran_ue_ngap_id UInt64,
+	total_num UInt32,
+	start_second UInt64,
+	end_second UInt64,
+	begin_time DateTime64(6), 
+	latest_time DateTime64(6), 
+	verification_tag UInt64,
+	src_ip String, 
+	dst_ip String,
+	status_flow UInt16, 
+	task_id String,
+	
+	INDEX i_flow_id (flow_id) TYPE minmax GRANULARITY 4, 
+	INDEX i_ran_ue_ngap_id (ran_ue_ngap_id) TYPE minmax GRANULARITY 4, 
+	INDEX i_total_num (total_num) TYPE minmax GRANULARITY 4, 
+	INDEX i_begin_time (begin_time) TYPE minmax GRANULARITY 4, 
+	INDEX i_src_ip (src_ip) TYPE minmax GRANULARITY 4, 
+	INDEX i_dst_ip (dst_ip) TYPE minmax GRANULARITY 4,
+	INDEX i_task_id (task_id) TYPE minmax GRANULARITY 4,
+	INDEX i_status_flow (status_flow) TYPE minmax GRANULARITY 4
+	)  
+	ENGINE = MergeTree() 
+	PARTITION BY toYYYYMMDD(begin_time)
+	ORDER BY (begin_time)
+`
 
 var dropUEFlowTableSQL = "DROP TABLE " + UeFlowTable
 

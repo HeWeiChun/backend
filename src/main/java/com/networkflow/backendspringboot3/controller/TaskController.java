@@ -35,8 +35,8 @@ public class TaskController {
                         @RequestParam("status") Integer status,
                         @RequestParam(name = "pcapFile", required = false) MultipartFile file) {
         TaskRequest taskRequest = new TaskRequest();
-        taskRequest.setTaskId(taskId);
-        taskRequest.setCreateTime(LocalDateTime.parse(createTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        taskRequest.setTask_id(taskId);
+        taskRequest.setCreate_time(LocalDateTime.parse(createTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         taskRequest.setMode(mode);
         taskRequest.setModel(model);
         taskRequest.setPort(port);
@@ -52,7 +52,7 @@ public class TaskController {
                         @RequestParam(name = "port", required = false) Integer port,
                         @RequestParam(name = "pcapFile", required = false) MultipartFile file) {
         TaskRequest taskRequest = new TaskRequest();
-        taskRequest.setTaskId(taskId);
+        taskRequest.setTask_id(taskId);
         taskRequest.setMode(mode);
         taskRequest.setModel(model);
         taskRequest.setPort(port);

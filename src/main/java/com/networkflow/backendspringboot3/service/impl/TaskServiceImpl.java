@@ -3,6 +3,8 @@ package com.networkflow.backendspringboot3.service.impl;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.networkflow.backendspringboot3.common.R;
 import com.networkflow.backendspringboot3.mapper.PacketMapper;
@@ -28,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.sql.Wrapper;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -57,7 +60,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public R allTask() {
         QueryWrapper<Task> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().orderByDesc(Task::getCreateTime);
+        queryWrapper.lambda().orderByDesc(Task::getCreate_time);
         return R.success(null, taskMapper.selectList(queryWrapper));
     }
 
@@ -96,14 +99,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     }
 
     private void deleteCache(String taskId) {
-        timeFlowMapper.delete(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getTaskID, taskId));
-        List<UEFlow> ueFlowList = ueFlowMapper.selectList(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTaskID, taskId));
+        timeFlowMapper.delete(new QueryWrapper<TimeFlow>().lambda().eq(TimeFlow::getTask_id, taskId));
+        List<UEFlow> ueFlowList = ueFlowMapper.selectList(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTask_id, taskId));
         String[] flowIds = ueFlowList.stream()
-                .map(UEFlow::getFlowId)
+                .map(UEFlow::getFlow_id)
                 .toArray(String[]::new);
         if(flowIds.length>0)
-            packetMapper.delete(new QueryWrapper<Packet>().lambda().in(Packet::getFlowUEID, Arrays.asList(flowIds)));
-        ueFlowMapper.delete(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTaskID, taskId));
+            packetMapper.delete(new QueryWrapper<Packet>().lambda().in(Packet::getFlow_ue_id, Arrays.asList(flowIds)));
+        ueFlowMapper.delete(new QueryWrapper<UEFlow>().lambda().eq(UEFlow::getTask_id, taskId));
     }
 
     @Override
@@ -112,10 +115,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
 
         BeanUtils.copyProperties(createTaskRequest, task);
 
-        String trueFileName = uploadFile(uploadFile, createTaskRequest.getTaskId());
+        String trueFileName = uploadFile(uploadFile, createTaskRequest.getTask_id());
         if (trueFileName != null) {
-            task.setPcapPath(uploadFile.getOriginalFilename());
-            task.setTruePcapPath(trueFileName);
+            task.setPcap_path(uploadFile.getOriginalFilename());
+            task.setTrue_pcap_path(trueFileName);
         } else {
             return R.fatal("上传文件失败");
         }
@@ -132,10 +135,10 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         Task task = new Task();
         BeanUtils.copyProperties(createTaskRequest, task);
 
-        String trueFileName = uploadFile(uploadFile, createTaskRequest.getTaskId());
+        String trueFileName = uploadFile(uploadFile, createTaskRequest.getTask_id());
         if (trueFileName != null) {
-            task.setPcapPath(uploadFile.getOriginalFilename());
-            task.setTruePcapPath(trueFileName);
+            task.setPcap_path(uploadFile.getOriginalFilename());
+            task.setTrue_pcap_path(trueFileName);
         } else {
             return R.fatal("上传文件失败");
         }
@@ -150,7 +153,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     @Override
     public R updateTaskStatus(String taskId, Integer status) {
         Task task = new Task();
-        task.setTaskId(taskId);
+        task.setTask_id(taskId);
         task.setStatus(status);
         if (taskMapper.updateById(task) > 0) {
             return R.success("更新成功");
@@ -165,18 +168,19 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         for (String taskId : taskIds) {
             deleteCache(taskId);
             // 检查文件存储位置是否存在
+            String filename = taskMapper.selectById(taskId).getTrue_pcap_path();
             String filePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
-                    System.getProperty("file.separator") + "upload" + System.getProperty("file.separator") + taskId + ".pcapng";
+                    System.getProperty("file.separator") + "upload" + System.getProperty("file.separator") + filename;
             File file = new File(filePath);
             if (file.exists()) {
                 boolean deleted = file.delete();
                 if (deleted) {
-                    System.out.println("文件删除成功");
+                    log.info("任务: "+taskId + " 清理流量文件 "+ filename+ " 成功");
                 } else {
-                    System.out.println("文件删除失败");
+                    log.info("任务: "+taskId + " 清理流量文件 "+ filename+ " 失败");
                 }
             } else {
-                System.out.println("文件不存在");
+                log.info("任务: "+taskId + " 流量文件 " + filename + " 不存在");
             }
         }
         if (taskMapper.deleteBatchIds(Arrays.asList(taskIds)) > 0) {
@@ -195,17 +199,17 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
     public R startTask(String[] taskIds) {
         int successCount = 0;
         for (String taskId : taskIds) {
-            Task task = new Task();
-            task.setTaskId(taskId);
-            task.setStatus(1);
-            task.setStartTime(null);
-            task.setEndTime(null);
-            task.setAbnormal(null);
-            task.setNormal(null);
-            task.setTotal(null);
+            UpdateWrapper<Task> updateWrapper = Wrappers.update();
+            updateWrapper.lambda().set(Task::getStatus, 1).
+                    set(Task::getStart_time, null).
+                    set(Task::getEnd_time, null).
+                    set(Task::getAbnormal, null).
+                    set(Task::getNormal, null).
+                    set(Task::getTotal, null).
+                    eq(Task::getTask_id, taskId);
             // 清除缓存
             deleteCache(taskId);
-            if (taskMapper.updateById(task) > 0) {
+            if (taskMapper.update(null, updateWrapper) > 0) {
                 successCount++;
             }
         }
@@ -223,16 +227,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         int successCount = 0;
         for (String taskId : taskIds) {
             taskManager.stopTask(taskId);
-            Task task = new Task();
-            task.setTaskId(taskId);
-            task.setStatus(200);
-            task.setEndTime(null);
-            task.setAbnormal(null);
-            task.setNormal(null);
-            task.setTotal(null);
+            UpdateWrapper<Task> updateWrapper = Wrappers.update();
+            updateWrapper.lambda().set(Task::getStatus, 200).
+                    set(Task::getEnd_time, null).
+                    set(Task::getAbnormal, null).
+                    set(Task::getNormal, null).
+                    set(Task::getTotal, null).
+                    eq(Task::getTask_id, taskId);
             // 清除缓存
             deleteCache(taskId);
-            if (taskMapper.updateById(task) > 0) {
+            if (taskMapper.update(null, updateWrapper) > 0) {
                 successCount++;
             }
         }
@@ -257,7 +261,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements Ta
         for (Task task : list) {
             String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             task.setStatus(2);
-            task.setStartTime(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            task.setStart_time(LocalDateTime.parse(currentTime, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
             taskMapper.updateById(task);
             if (taskMapper.updateById(task) > 0) {
                 detectTask.executeScript(task);
@@ -286,29 +290,29 @@ class DetectTask {
             String line;
             BufferedReader reader;
             // Go解析脚本
-            log.info("任务: " + currentTask.getTaskId() + " 执行检测, 线程名字为 = " + Thread.currentThread().getName());
+            log.info("任务: " + currentTask.getTask_id() + " 执行检测, 线程名字为 = " + Thread.currentThread().getName());
             ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\.conda\\envs\\xgboost39\\python.exe", System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
-                    System.getProperty("file.separator") + "main.py", "--taskid", currentTask.getTaskId(), "--model", String.valueOf(currentTask.getModel()));
+                    System.getProperty("file.separator") + "main.py", "--taskid", currentTask.getTask_id(), "--model", String.valueOf(currentTask.getModel()));
             processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
             Process process = processBuilder.start();
-            taskManager.addTaskProcess(currentTask.getTaskId(), process);
-            log.info("任务: " + currentTask.getTaskId() + " 检测脚本运行的PID为:" + process.pid());
+            taskManager.addTaskProcess(currentTask.getTask_id(), process);
+            log.info("任务: " + currentTask.getTask_id() + " 检测脚本运行的PID为:" + process.pid());
             reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
             while ((line = reader.readLine()) != null) {
-                log.info("任务: " + currentTask.getTaskId() + " " + line);
+                log.info("任务: " + currentTask.getTask_id() + " " + line);
             }
             int exitCode = process.waitFor();
             reader.close();
-            taskManager.stopTask(currentTask.getTaskId());
-            log.info("任务: " + currentTask.getTaskId() + " 检测成功, 已停止, 退出码为: " + exitCode);
+            taskManager.stopTask(currentTask.getTask_id());
+            log.info("任务: " + currentTask.getTask_id() + " 检测成功, 已停止, 退出码为: " + exitCode);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             Task task = new Task();
-            task.setTaskId(currentTask.getTaskId());
+            task.setTask_id(currentTask.getTask_id());
             task.setStatus(100);
             taskMapper.updateById(task);
-            taskManager.stopTask(currentTask.getTaskId());
-            log.info("任务: " + currentTask.getTaskId() + " 检测失败, 已停止");
+            taskManager.stopTask(currentTask.getTask_id());
+            log.info("任务: " + currentTask.getTask_id() + " 检测失败, 已停止");
         }
     }
 }

@@ -2,7 +2,6 @@ package flowMap
 
 import (
 	"container/list"
-	"fmt"
 	"github.com/Freddy/sctp_flowmap/database/PacketDB"
 	"github.com/Freddy/sctp_flowmap/database/TimeFlow"
 	"github.com/Freddy/sctp_flowmap/database/UEFlow"
@@ -15,7 +14,7 @@ var (
 	flowCount      uint64 = 0
 	TimeMax        int64  = 300000000
 	min_intervl    int64  = 1
-	TimeChip       int64  = 20000000
+	TimeChip       int64  = 5000000000
 )
 
 func init() {
@@ -28,17 +27,19 @@ func Count_UE_ID(packet *Packet, taskid string) (uint64, bool) {
 	if RAN_UE_NGAP_ID == -1 {
 		return 0, false
 	}
-	//flowID := FastFourHash(string(packet.SrcIP), string(packet.DstIP), string(RAN_UE_NGAP_ID),string(packet.VerificationTag))
 	flowID := FastTwoHash([]byte(strconv.FormatInt(RAN_UE_NGAP_ID, 10)), []byte(taskid))
-	//flowID := FnvHash([]byte(string(RAN_UE_NGAP_ID)))
 	return flowID, true
 
 }
 
-func Count_Time_ID(packet *Packet, TimeFirst int64) (uint64, int64) {
+func Count_Time_ID(packet *Packet, TimeFirst int64, taskid string) (uint64, bool) {
+	RAN_UE_NGAP_ID := packet.RAN_UE_NGAP_ID
+	if RAN_UE_NGAP_ID == -1 {
+		return 0, false
+	}
 	Time := packet.ArriveTimeUs - TimeFirst
 	Time = Time / TimeChip
-	return FastTwoHash([]byte(string(Time)), []byte(string(packet.VerificationTag))), Time
+	return FastTwoHash([]byte(strconv.FormatInt(Time, 10)), []byte(taskid)), true
 }
 
 func Put(packet *Packet, flowTable []*Flow, flowID string, taskid string) bool {
@@ -56,12 +57,11 @@ func Put(packet *Packet, flowTable []*Flow, flowID string, taskid string) bool {
 		} else {
 			packet.DirSeq = -1
 		}
-
 	} else {
 		// 首次接收，创建流info
 		flowInfo = &FlowInfo{
 			FlowID:          flowID,
-			RAN_UE_NGAP_ID:  int64(packet.RAN_UE_NGAP_ID),
+			RAN_UE_NGAP_ID:  packet.RAN_UE_NGAP_ID,
 			FlowType:        NGAPType,
 			TotalNum:        1,
 			VerificationTag: packet.VerificationTag,
@@ -82,36 +82,6 @@ func Put(packet *Packet, flowTable []*Flow, flowID string, taskid string) bool {
 		first = true
 	}
 	return first
-}
-
-func ItFlowMap(flowTable []*Flow) {
-	for _, flow := range flowTable {
-		if flow == nil {
-			continue
-		}
-		for cur := flow; cur != nil; cur = cur.next {
-			fmt.Println("FlowID:", cur.info.FlowID)
-			//fmt.Println("Totalnum",cur.info.TotalNum)
-			//fmt.Println("TimeID",cur.info.TimeID)
-			//fmt.Println("RAN_UE_ID:",cur.info.RAN_UE_NGAP_ID)
-			//i:=cur.info.TotalNum
-			fmt.Println("TotalNum:", cur.info.TotalNum)
-
-			for pac := cur.info.PacketList.Front(); pac != nil; pac = pac.Next() {
-				parse := pac.Value.(*Packet)
-				//fmt.Println("packetnum:")
-				//fmt.Println("RAN_UE_NGAP_ID",parse.RAN_UE_NGAP_ID)
-				fmt.Println("NgapType:", parse.NgapType)
-				//fmt.Println("NgapProc:",parse.NgapProcedureCode)
-
-				//fmt.Println("packetlen:",parse.PacketLen)
-				//fmt.Println("Arrivetime",parse.ArriveTime)
-				//fmt.Println("timeinter",parse.TimeInterval)
-			}
-
-		}
-	}
-
 }
 
 func UEFlowMapToStore() *list.List {
@@ -147,9 +117,8 @@ func UEflowStore(rubbishList *list.List) {
 			VerificationTag: uint64(flowInfo.VerificationTag),
 			SrcIP:           flowInfo.SrcIP,
 			DstIP:           flowInfo.DstIP,
-			//TimeID          uint64
-			StatusFlow: 0,
-			TaskID:     flowInfo.TaskID,
+			StatusFlow:      0,
+			TaskID:          flowInfo.TaskID,
 		}
 		UeFlowList.PushBack(fl)
 
@@ -191,9 +160,8 @@ func TimeflowStore(rubbishList *list.List, taskid string) {
 			VerificationTag: uint64(flowInfo.VerificationTag),
 			SrcIP:           flowInfo.SrcIP,
 			DstIP:           flowInfo.DstIP,
-			//TimeID          uint64
-			StatusFlow: 0,
-			TaskID:     flowInfo.TaskID,
+			StatusFlow:      0,
+			TaskID:          flowInfo.TaskID,
 		}
 		TimeFlowList.PushBack(fl)
 		for cur := flowInfo.PacketList.Front(); cur != nil; cur = cur.Next() {

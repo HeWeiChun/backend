@@ -8,15 +8,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.time.LocalDateTime;
 
-@TableName(value = "Task")
+@TableName(value = "task")
 @Data
 public class Task {
     @TableId(type = IdType.ASSIGN_UUID)
-    private String taskId;
+    private String task_id;
 
-    private LocalDateTime createTime;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalDateTime create_time;
+    private LocalDateTime start_time;
+    private LocalDateTime end_time;
 
     // mode: 0为实时流量检测，1为离线流量检测
     private Integer mode;
@@ -25,9 +25,9 @@ public class Task {
     // port: 实时流量检测端口
     private Integer port;
     // PCAP包存储位置
-    private String pcapPath;
+    private String pcap_path;
     // PCAP包存储位置(任务id命名)
-    private String truePcapPath;
+    private String true_pcap_path;
     // 正常数据包数
     private Integer normal;
     // 异常数据包数
