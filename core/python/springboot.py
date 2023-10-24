@@ -20,16 +20,16 @@ def detect_taskid(model_type, taskid):
     loss_p = 60000
 
     if model_type == '0':  # XGBoost(UEID聚合)
-        model_path = "core/Python/model/ueid_XGBoost1010.pkl"
+        model_path = "core/python/model/ueid_XGBoost1010.pkl"
         print("当前使用模型: XGBoost(UEID)")
     elif model_type == '1':  # XGBoost(Time聚合)
-        model_path = "core/Python/model/time_XGBoost1010.pkl"
+        model_path = "core/python/model/time_XGBoost1010.pkl"
         print("当前使用模型: XGBoost(Time)")
     elif model_type == '2':  # Whipser模型(UEID聚合)
-        model_path = "core/Python/model/kmeans.pkl"
+        model_path = "core/python/model/kmeans.pkl"
         print("当前使用模型: Whipser(UEID)")
     else:
-        model_path = "core/Python/model/ueid_XGBoost1010.pkl"
+        model_path = "core/python/model/ueid_XGBoost1010.pkl"
         print("不合法的模型类型. 使用默认模型: XGBoost(UEID)")
     model = joblib.load(model_path)
     random.seed(27)
@@ -62,7 +62,7 @@ def detect_taskid(model_type, taskid):
                 # 特征提取 & 模型检测
                 feature = whisper.extraction(result)
                 feature = np.array(feature)
-                f = open("core/Python/model/train_loss.data", 'rb')
+                f = open("core/python/model/train_loss.data", 'rb')
                 train_loss = pickle.load(f)
                 centers = model.cluster_centers_
                 labels = model.predict(feature)

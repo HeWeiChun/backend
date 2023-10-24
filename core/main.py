@@ -18,15 +18,15 @@ def main(args):
         select_pcap = "SELECT true_pcap_path FROM sctp.task WHERE task_id = %(taskid)s"
         pcapPath = client.execute(select_pcap, taskid_param)[0][0]
         go_cmd = [
-            "C:\\Users\\HorizonHe\\sdk\\go1.20.4\\bin\\go.exe",
+            "go",
             "run",
             "main.go",
             "--pcap_path",
-            f"..\\upload\\{pcapPath}",
+            f"../upload/{pcapPath}",
             "--taskid",
             args.taskid
         ]
-        go_process = subprocess.Popen(go_cmd, cwd="E:\\Code\\web\\backendspringboot3\\core\\Go",
+        go_process = subprocess.Popen(go_cmd, cwd="/home/whe/webHWCYahong/backend/core/go",
                                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         print(f"Go脚本进程PID为: {go_process.pid}")
 
@@ -38,7 +38,7 @@ def main(args):
 
         go_exit_code = go_process.wait()
 
-        print(f"Go脚本执行完毕，退出码：{go_exit_code}")
+        print(f"Go脚本执行完毕, 退出码: {go_exit_code}")
 
         if go_exit_code == 0:
             task_status = 3
@@ -55,14 +55,14 @@ def main(args):
 
         # 执行Python脚本
         python_cmd = [
-            "C:\\Users\\HorizonHe\\.conda\\envs\\xgboost39\\python.exe",
+            "/home/whe/anaconda3/envs/xgboost39/bin/python",
             os.path.join(os.getcwd(), "core", "python", "springboot.py"),
             "--taskid",
             args.taskid,
             "--model",
             args.model
         ]
-        python_process = subprocess.Popen(python_cmd, cwd="E:\\Code\\web\\backendspringboot3",
+        python_process = subprocess.Popen(python_cmd, cwd="/home/whe/webHWCYahong/backend",
                                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         print(f"Python脚本进程的PID为: {python_process.pid}")
 

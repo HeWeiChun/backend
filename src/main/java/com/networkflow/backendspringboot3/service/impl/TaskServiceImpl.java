@@ -291,7 +291,7 @@ class DetectTask {
             BufferedReader reader;
             // Go解析脚本
             log.info("任务: " + currentTask.getTask_id() + " 执行检测, 线程名字为 = " + Thread.currentThread().getName());
-            ProcessBuilder processBuilder = new ProcessBuilder("C:\\Users\\HorizonHe\\.conda\\envs\\xgboost39\\python.exe", System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
+            ProcessBuilder processBuilder = new ProcessBuilder("/home/whe/anaconda3/envs/xgboost39/bin/python", System.getProperty("user.dir") + System.getProperty("file.separator") + "core" +
                     System.getProperty("file.separator") + "main.py", "--taskid", currentTask.getTask_id(), "--model", String.valueOf(currentTask.getModel()));
             processBuilder.redirectErrorStream(true); // 合并标准输出和标准错误流
             Process process = processBuilder.start();
